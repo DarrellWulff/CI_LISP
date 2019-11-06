@@ -1,3 +1,4 @@
+//ok to make helper functions if needed
 #ifndef __cilisp_h_
 #define __cilisp_h_
 

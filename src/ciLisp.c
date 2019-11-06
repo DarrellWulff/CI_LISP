@@ -53,6 +53,7 @@ OPER_TYPE resolveFunc(char *funcName)
 // SEE: AST_NODE, NUM_AST_NODE, AST_NODE_TYPE.
 AST_NODE *createNumberNode(double value, NUM_TYPE type)
 {
+    //populate the ast node
     AST_NODE *node;
     size_t nodeSize;
 
@@ -84,6 +85,7 @@ AST_NODE *createFunctionNode(char *funcName, AST_NODE *op1, AST_NODE *op2)
         yyerror("Memory allocation failed!");
 
     // TODO set the AST_NODE's type, populate contained FUNC_AST_NODE
+    //for now just free the name until later2
     // NOTE: you do not need to populate the "ident" field unless the function is type CUSTOM_OPER.
     // When you do have a CUSTOM_OPER, you do NOT need to allocate and strcpy here.
     // The funcName will be a string identifier for which space should be allocated in the tokenizer.
@@ -132,8 +134,12 @@ RET_VAL eval(AST_NODE *node)
     // TODO complete the switch.
     // Make calls to other eval functions based on node type.
     // Use the results of those calls to populate result.
+    // in the long run you may want to change &node->data.function to just generic node
     switch (node->type)
     {
+        case FUNC_NODE_TYPE:
+            evalFuncNode( &node->data.function);
+            break;
         default:
             yyerror("Invalid AST_NODE_TYPE, probably invalid writes somewhere!");
     }
@@ -145,6 +151,7 @@ RET_VAL eval(AST_NODE *node)
 // DOES NOT allocate space for a new RET_VAL.
 RET_VAL evalNumNode(NUM_AST_NODE *numNode)
 {
+    //default this will return not a number
     if (!numNode)
         return (RET_VAL){INT_TYPE, NAN};
 
@@ -167,6 +174,18 @@ RET_VAL evalFuncNode(FUNC_AST_NODE *funcNode)
 
     // TODO populate result with the result of running the function on its operands.
     // SEE: AST_NODE, AST_NODE_TYPE, FUNC_AST_NODE
+    //eval these in the switch
+    // return double if one type is a double
+    //recommend look at op in h file and get one op working to start
+    RET_VAL op1;
+    RET_VAL op2;
+
+    switch (funcNode->oper)
+    {
+        case ADD_OPER:
+            op1 = eval(funcNode->op1);
+            break;
+    }
 
 
     return result;
