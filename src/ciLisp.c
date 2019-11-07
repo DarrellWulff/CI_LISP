@@ -34,6 +34,12 @@ char *funcNames[] = {
         ""
 };
 
+char *nodeNames[] = {
+
+        "Number Node",
+        "Function Node"
+};
+
 OPER_TYPE resolveFunc(char *funcName)
 {
     int i = 0;
@@ -67,12 +73,12 @@ AST_NODE *createNumberNode(double value, NUM_TYPE type)
 
     if(checkNumberType(value))
     {
-        node->data.number.value.ival = (long)value;
+        node->data.number.value = floor(value);
         node->data.number.type = INT_TYPE;
     }
     else
         {
-            node->data.number.value.dval = value;
+            node->data.number.value = value;
             node->data.number.type = DOUBLE_TYPE;
         }
 
@@ -109,8 +115,10 @@ AST_NODE *createFunctionNode(char *funcName, AST_NODE *op1, AST_NODE *op2)
     node->data.function.op2 = op2;
 
     // TODO add the custom functions name to the node
-    free(funcName);//Check if a custom function BEFORE FREEING!
     //node->data.function.ident = malloc(sizeof(funcName)+1);
+    //node->data.function.ident = funcName;
+    free(funcName);//Check if a custom function BEFORE FREEING!
+
 
     return node;
 }
@@ -183,10 +191,7 @@ RET_VAL evalNumNode(NUM_AST_NODE *numNode)
     // TODO populate result with the values stored in the node.
     // SEE: AST_NODE, AST_NODE_TYPE, NUM_AST_NODE
     result.type = numNode->type;
-    if(result.type == INT_TYPE)
-        result.value.ival = numNode->value.ival;
-    else
-        result.value.dval = numNode->value.dval;
+    result.value = numNode->value;
 
     return result;
 }
@@ -211,12 +216,13 @@ RET_VAL evalFuncNode(FUNC_AST_NODE *funcNode)
     {
         case NEG_OPER:
             op1 = eval(funcNode->op1);
+            op1.value = -op1.value;
+            break;
         case ADD_OPER:
             op1 = eval(funcNode->op1);
             op2 = eval(funcNode->op2);
             break;
     }
-
 
     return result;
 }
@@ -225,6 +231,7 @@ RET_VAL evalFuncNode(FUNC_AST_NODE *funcNode)
 void printRetVal(RET_VAL val)
 {
     // TODO print the type and value of the value passed in.
+    printf("\n%s value: %f", nodeNames[val.type], val.value);
 }
 
 //-------HELPER FUNCTION SECTION-------
