@@ -45,7 +45,7 @@ OPER_TYPE resolveFunc(char *funcName)
     }
     return CUSTOM_OPER;
 }
-
+// Task 2 you will have to worry about parent nodes
 // Called when an INT or DOUBLE token is encountered (see ciLisp.l and ciLisp.y).
 // Creates an AST_NODE for the number.
 // Sets the AST_NODE's type to number.
@@ -63,6 +63,18 @@ AST_NODE *createNumberNode(double value, NUM_TYPE type)
         yyerror("Memory allocation failed!");
 
     // TODO set the AST_NODE's type, assign values to contained NUM_AST_NODE
+    node->type = NUM_NODE_TYPE;
+
+    if(checkNumberType(value))
+    {
+        node->data.number.value.ival = (long)value;
+        node->data.number.type = INT_TYPE;
+    }
+    else
+        {
+            node->data.number.value.dval = value;
+            node->data.number.type = DOUBLE_TYPE;
+        }
 
     return node;
 }
@@ -91,6 +103,14 @@ AST_NODE *createFunctionNode(char *funcName, AST_NODE *op1, AST_NODE *op2)
     // The funcName will be a string identifier for which space should be allocated in the tokenizer.
     // For CUSTOM_OPER functions, you should simply assign the "ident" pointer to the passed in funcName.
     // For functions other than CUSTOM_OPER, you should free the funcName after you're assigned the OPER_TYPE.
+    node->type = FUNC_NODE_TYPE;
+    node->data.function.oper = resolveFunc(funcName);
+    node->data.function.op1 = op1;
+    node->data.function.op2 = op2;
+
+    // TODO add the custom functions name to the node
+    free(funcName);//Check if a custom function BEFORE FREEING!
+    //node->data.function.ident = malloc(sizeof(funcName)+1);
 
     return node;
 }
@@ -140,6 +160,9 @@ RET_VAL eval(AST_NODE *node)
         case FUNC_NODE_TYPE:
             evalFuncNode( &node->data.function);
             break;
+        case NUM_NODE_TYPE:
+            evalNumNode( &node->data.number);
+            break;
         default:
             yyerror("Invalid AST_NODE_TYPE, probably invalid writes somewhere!");
     }
@@ -159,7 +182,11 @@ RET_VAL evalNumNode(NUM_AST_NODE *numNode)
 
     // TODO populate result with the values stored in the node.
     // SEE: AST_NODE, AST_NODE_TYPE, NUM_AST_NODE
-
+    result.type = numNode->type;
+    if(result.type == INT_TYPE)
+        result.value.ival = numNode->value.ival;
+    else
+        result.value.dval = numNode->value.dval;
 
     return result;
 }
@@ -182,8 +209,11 @@ RET_VAL evalFuncNode(FUNC_AST_NODE *funcNode)
 
     switch (funcNode->oper)
     {
+        case NEG_OPER:
+            op1 = eval(funcNode->op1);
         case ADD_OPER:
             op1 = eval(funcNode->op1);
+            op2 = eval(funcNode->op2);
             break;
     }
 
@@ -195,4 +225,15 @@ RET_VAL evalFuncNode(FUNC_AST_NODE *funcNode)
 void printRetVal(RET_VAL val)
 {
     // TODO print the type and value of the value passed in.
+}
+
+//-------HELPER FUNCTION SECTION-------
+
+bool checkNumberType(double val)
+{
+    double truncVal = (int)val;
+    if(truncVal == val)
+        return true;
+    else
+        return false;
 }

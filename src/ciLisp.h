@@ -62,6 +62,9 @@ typedef enum {
 } NUM_TYPE;
 
 // Node to store a number.
+// could remove union and just truncate a double
+// may get rounding errors
+// make a helper functions
 typedef struct {
     NUM_TYPE type;
     union{
@@ -104,5 +107,8 @@ RET_VAL evalNumNode(NUM_AST_NODE *numNode);
 RET_VAL evalFuncNode(FUNC_AST_NODE *funcNode);
 
 void printRetVal(RET_VAL val);
+
+//HELPER FUNCTIONS
+bool checkNumberType(double val);
 
 #endif
