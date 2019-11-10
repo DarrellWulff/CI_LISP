@@ -1,3 +1,4 @@
+//ok to make helper functions if needed
 #ifndef __cilisp_h_
 #define __cilisp_h_
 
@@ -61,12 +62,16 @@ typedef enum {
 } NUM_TYPE;
 
 // Node to store a number.
+// could remove union and just truncate a double
+// may get rounding errors
+// make a helper functions
 typedef struct {
     NUM_TYPE type;
-    union{
+    double value;
+    /*union{
         double dval;
         long ival;
-    } value;
+    } value;*/
 } NUM_AST_NODE;
 
 // Values returned by eval function will be numbers with a type.
@@ -103,5 +108,8 @@ RET_VAL evalNumNode(NUM_AST_NODE *numNode);
 RET_VAL evalFuncNode(FUNC_AST_NODE *funcNode);
 
 void printRetVal(RET_VAL val);
+
+//HELPER FUNCTIONS
+bool checkNumberType(double val);
 
 #endif

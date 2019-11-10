@@ -1,0 +1,28 @@
+part 1 
+hypot and above, add some to tokenizer
+SYMBOL
+    {
+        $$ = createSymbolNode($1);
+    }
+    RPAREN let_section s_expr LPAREN
+    {
+        $$ = linkSymbolTable($2, $3);
+    }
+
+part 2:
+
+list ex:
+(let (x 1) (y 2.5))
+
+AST NODE-
+
+
+A lot of ast nodes will have null for parent
+Symbol AST Node will go in AST NODE data portion
+
+
+symbol table is a linked list
+
+
+Func ast node
+
