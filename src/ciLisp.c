@@ -166,10 +166,10 @@ RET_VAL eval(AST_NODE *node)
     switch (node->type)
     {
         case FUNC_NODE_TYPE:
-            evalFuncNode( &node->data.function);
+            result = evalFuncNode( &node->data.function);
             break;
         case NUM_NODE_TYPE:
-            evalNumNode( &node->data.number);
+            result = evalNumNode( &node->data.number);
             break;
         default:
             yyerror("Invalid AST_NODE_TYPE, probably invalid writes somewhere!");
@@ -216,11 +216,79 @@ RET_VAL evalFuncNode(FUNC_AST_NODE *funcNode)
     {
         case NEG_OPER:
             op1 = eval(funcNode->op1);
-            op1.value = -op1.value;
+            result.value = -op1.value;
+            break;
+        case ABS_OPER:
+            op1 = eval(funcNode->op1);
+            result.value = abs(op1.value);
+            break;
+        case EXP_OPER:
+            op1 = eval(funcNode->op1);
+            result.value = exp(op1.value);
+            break;
+        case SQRT_OPER:
+            op1 = eval(funcNode->op1);
+            result.value = sqrt(op1.value);
             break;
         case ADD_OPER:
             op1 = eval(funcNode->op1);
             op2 = eval(funcNode->op2);
+            result.value = op1.value + op2.value;
+            break;
+        case SUB_OPER:
+            op1 = eval(funcNode->op1);
+            op2 = eval(funcNode->op2);
+            result.value = op1.value - op2.value;
+            break;
+        case MULT_OPER:
+            op1 = eval(funcNode->op1);
+            op2 = eval(funcNode->op2);
+            result.value = op1.value * op2.value;
+            break;
+        case DIV_OPER:
+            op1 = eval(funcNode->op1);
+            op2 = eval(funcNode->op2);
+            result.value = op1.value / op2.value;
+            break;
+        case REMAINDER_OPER:
+            op1 = eval(funcNode->op1);
+            op2 = eval(funcNode->op2);
+            result.value = remainder(op1.value, op2.value);
+            break;
+        case LOG_OPER:
+            op1 = eval(funcNode->op1);
+            result.value = log(op1.value);
+            break;
+        case POW_OPER:
+            op1 = eval(funcNode->op1);
+            op2 = eval(funcNode->op2);
+            result.value = pow(op1.value, op2.value);
+            break;
+        case MAX_OPER:
+            op1 = eval(funcNode->op1);
+            op2 = eval(funcNode->op2);
+            result.value = fmax(op1.value, op2.value);
+            break;
+        case MIN_OPER:
+            op1 = eval(funcNode->op1);
+            op2 = eval(funcNode->op2);
+            result.value = fmin(op1.value, op2.value);
+            break;
+        case EXP2_OPER:
+            op1 = eval(funcNode->op1);
+            result.value = exp2(op1.value);
+            break;
+        case CBRT_OPER:
+            op1 = eval(funcNode->op1);
+            result.value = cbrt(op1.value);
+            break;
+        case HYPOT_OPER:
+            op1 = eval(funcNode->op1);
+            op2 = eval(funcNode->op2);
+            result.value = hypot(op1.value, op2.value);
+            break;
+        default:
+            printf("\nNot a valid operation!\n");
             break;
     }
 

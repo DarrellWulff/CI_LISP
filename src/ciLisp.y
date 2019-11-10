@@ -6,10 +6,10 @@
     double dval;
     char *sval;
     struct ast_node *astNode;
-};
+}
 
 %token <sval> FUNC
-%token <dval> INT, DOUBLE
+%token <dval> INT DOUBLE
 %token LPAREN RPAREN EOL QUIT
 
 %type <astNode> s_expr f_expr number
