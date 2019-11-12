@@ -29,8 +29,8 @@ Fall 2019
       happening since I changed it to just a double value.
       
       Sample Runs: My task 1 runs are contained in the "Task1Ouputs" file. The lexer takes in the
-      input then bison matches it to the correct expersion passesing the th $values. These values are lined 
-      up to the correct ast_node types to complete the operations.
+      input then bison matches it to the correct expersion passesing the th $values. 
+      These values are lined up to the correct ast_node types to complete the operations.
     
 * Task 2
 * Task 3
