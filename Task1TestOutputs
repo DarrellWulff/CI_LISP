@@ -1,0 +1,64 @@
+/Users/darrell.wulff050/Desktop/comp232/CI_LISP/cmake-build-debug/cilisp
+
+> (neg 2)
+
+Number Node value: -2.000000
+> (abs -9)
+
+Number Node value: 9.000000
+> (exp 1_
+ERROR: invalid character: >>_<<
+
+> (exp 1)
+
+Number Node value: 2.718282
+> (sqrt 4)
+
+Number Node value: 2.000000
+> (add 4 6)
+
+Number Node value: 10.000000
+> (sub 7 8)
+
+Number Node value: -1.000000
+> (mult 5 6)
+
+Number Node value: 30.000000
+> (div 4 2)
+
+Number Node value: 2.000000
+> (remainder 5 2)
+
+Number Node value: 1.000000
+> (log 4)
+
+Number Node value: 1.386294
+> (pow 5 4)
+
+Number Node value: 625.000000
+> (max 60 4)
+
+Number Node value: 60.000000
+> (min 3 3.23)
+
+Number Node value: 3.000000
+> (exp2 4)
+
+Number Node value: 16.000000
+> (cbrt 5)
+
+Number Node value: 1.709976
+> (hypot 7)
+
+Number Node value: nan
+> (hypot 4 2)
+
+Number Node value: 4.472136
+> (grtr 9 5)
+ERROR: invalid character: >>g<<
+ERROR: invalid character: >>r<<
+ERROR: invalid character: >>t<<
+ERROR: invalid character: >>r<<
+
+> 
+Process finished with exit code 15

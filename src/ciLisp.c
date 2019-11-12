@@ -220,7 +220,7 @@ RET_VAL evalFuncNode(FUNC_AST_NODE *funcNode)
             break;
         case ABS_OPER:
             op1 = eval(funcNode->op1);
-            result.value = abs(op1.value);
+            result.value = fabs(op1.value);
             break;
         case EXP_OPER:
             op1 = eval(funcNode->op1);
