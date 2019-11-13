@@ -8,11 +8,11 @@
     struct ast_node *astNode;
 }
 
-%token <sval> FUNC
+%token <sval> FUNC SYMBOL
 %token <dval> INT DOUBLE
 %token LPAREN RPAREN EOL QUIT
 
-%type <astNode> s_expr f_expr number
+%type <astNode> s_expr f_expr number let_section
 
 %%
 
@@ -30,8 +30,16 @@ s_expr:
         fprintf(stderr, "yacc: s_expr ::= number\n");
         $$ = $1;
     }
+    | symbol {
+    	fprintf(stderr, "yacc: s_expr ::= symbol\n");
+    	$$ = $1;
+    }
     | f_expr {
         $$ = $1;
+    }
+    | LPAREN let_section s_expr RPAREN {
+    	fprintf(stderr, "yacc: s_expr ::= LPAREN let_section s_expr RPAREN\n");
+    	$$
     }
     | QUIT {
         fprintf(stderr, "yacc: s_expr ::= QUIT\n");
@@ -53,6 +61,12 @@ number:
         $$ = createNumberNode($1, DOUBLE_TYPE);
     };
 
+symbol:
+    SYMBOL{
+    	fprintf(stderr, "yacc: symbol ::= SYMBOL\n");
+    	$$ = createSymbolNode($1);
+    }
+
 f_expr:
     LPAREN FUNC s_expr RPAREN {
         fprintf(stderr, "yacc: s_expr ::= LPAREN FUNC expr RPAREN\n");
@@ -62,5 +76,29 @@ f_expr:
         fprintf(stderr, "yacc: s_expr ::= LPAREN FUNC expr expr RPAREN\n");
         $$ = createFunctionNode($2, $3, $4);
     };
+
+let_section:
+    error {
+	fprintf(stderr, "yacc: s_expr ::= error\n");
+	yyerror("unexpected token");
+	$$ = NULL;
+    }
+    | LPAREN let_list RPAREN {
+	$$ = $2;
+    };
+
+let_list:
+    let let_elem{
+	$$ = $2;
+    }
+    | let_list let_elem{
+	$$ = $2;
+    };
+
+let_elem:
+    LPAREN symbol s_expr RPAREN{
+	$$ = createSymbolTableNode($2, $3);
+    }
+
 %%
 

@@ -51,9 +51,21 @@ OPER_TYPE resolveFunc(char *);
 // Initially, there are only numbers and functions.
 // You will expand this enum as you build the project.
 typedef enum {
+    SYMBOL_NODE_TYPE,
     NUM_NODE_TYPE,
     FUNC_NODE_TYPE
 } AST_NODE_TYPE;
+
+//Variable Nodes "let_section"
+typedef struct symbol_table_node {
+    char *ident;
+    struct ast_node *val;
+    struct symbol_table_node *next;
+} SYMBOL_TABLE_NODE;
+
+typedef struct symbol_ast_node {
+    char *ident;
+} SYMBOL_AST_NODE;
 
 // Types of numeric values
 typedef enum {
@@ -91,13 +103,19 @@ typedef struct {
 // and reference to the corresponding specific node (initially a number or function call).
 typedef struct ast_node {
     AST_NODE_TYPE type;
+    SYMBOL_TABLE_NODE *symbolTable;
+    struct ast_node *parent;
     union {
         NUM_AST_NODE number;
         FUNC_AST_NODE function;
+        SYMBOL_AST_NODE symbol;
     } data;
 } AST_NODE;
 
 AST_NODE *createNumberNode(double value, NUM_TYPE type);
+
+AST_NODE *createSymbolNode(char *symbolName);
+SYMBOL_TABLE_NODE *createSymbolTableNode(char *symbolName);
 
 AST_NODE *createFunctionNode(char *funcName, AST_NODE *op1, AST_NODE *op2);
 
