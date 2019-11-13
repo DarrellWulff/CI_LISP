@@ -6,13 +6,15 @@
     double dval;
     char *sval;
     struct ast_node *astNode;
+    struct symbol_table_node *symNode;
 }
 
 %token <sval> FUNC SYMBOL
 %token <dval> INT DOUBLE
 %token LPAREN RPAREN EOL QUIT
 
-%type <astNode> s_expr f_expr number let_section
+%type <astNode> s_expr f_expr number
+%type <symNode> let_section let_list let_elem
 
 %%
 
@@ -78,12 +80,7 @@ f_expr:
     };
 
 let_section:
-    error {
-	fprintf(stderr, "yacc: s_expr ::= error\n");
-	yyerror("unexpected token");
-	$$ = NULL;
-    }
-    | LPAREN let_list RPAREN {
+    LPAREN let_list RPAREN {
 	$$ = $2;
     };
 
@@ -92,7 +89,7 @@ let_list:
 	$$ = $2;
     }
     | let_list let_elem{
-	$$ = $2;
+	$$ = addSymbolToList($1, $2);
     };
 
 let_elem:

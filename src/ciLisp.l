@@ -15,12 +15,7 @@ func "neg"|"abs"|"exp"|"sqrt"|"add"|"sub"|"mult"|"div"|"remainder"|"log"|"pow"|"
 
 %%
 
-{symbol}{
-    yylval.sval = (char *) malloc(strlen(yytext)*sizeof(char));
-    strcpy(yylval.sval, yytext);
-    fprintf(stderr, "lex: SYMBOL sval = %s\n", yylval.sval);
-    return SYMBOL;
-}
+
 
 {int} {
     yylval.dval = strtod(yytext, NULL);
@@ -43,6 +38,13 @@ func "neg"|"abs"|"exp"|"sqrt"|"add"|"sub"|"mult"|"div"|"remainder"|"log"|"pow"|"
     strcpy(yylval.sval, yytext);
     fprintf(stderr, "lex: FUNC sval = %s\n", yylval.sval);
     return FUNC;
+    }
+
+{symbol}{
+    yylval.sval = (char *) malloc(strlen(yytext)*sizeof(char));
+    strcpy(yylval.sval, yytext);
+    fprintf(stderr, "lex: SYMBOL sval = %s\n", yylval.sval);
+    return SYMBOL;
     }
 
 "(" {

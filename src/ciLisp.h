@@ -116,7 +116,8 @@ AST_NODE *createNumberNode(double value, NUM_TYPE type);
 
 AST_NODE *createSymbolNode(char *symbolName);
 SYMBOL_TABLE_NODE *createSymbolTableNode(char *symbolName);
-
+SYMBOL_TABLE_NODE *addSymbolToList();
+//Set parents here
 AST_NODE *createFunctionNode(char *funcName, AST_NODE *op1, AST_NODE *op2);
 
 void freeNode(AST_NODE *node);
