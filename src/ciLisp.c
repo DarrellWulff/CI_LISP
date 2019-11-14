@@ -36,9 +36,14 @@ char *funcNames[] = {
 
 char *nodeNames[] = {
 
+        "Symbol Node",
         "Number Node",
         "Function Node"
 };
+
+//Symbol Table Linked List Root
+SYMBOL_TABLE_NODE *rootNode = NULL;
+
 
 OPER_TYPE resolveFunc(char *funcName)
 {
@@ -83,6 +88,66 @@ AST_NODE *createNumberNode(double value, NUM_TYPE type)
         }
 
     return node;
+}
+
+AST_NODE *createSymbolNode(char *symbolName)
+{
+    //populate the ast node
+    AST_NODE *node;
+    size_t nodeSize;
+
+    // allocate space for the fixed sie and the variable part (union)
+    nodeSize = sizeof(AST_NODE);
+    if ((node = calloc(nodeSize, 1)) == NULL)
+        yyerror("Memory allocation failed!");
+
+    node->type = SYMBOL_NODE_TYPE;
+
+    node->data.symbol.ident = malloc(sizeof(char)*strlen(symbolName));
+    strcpy(node->data.symbol.ident, symbolName);
+
+    return node;
+}
+
+SYMBOL_TABLE_NODE *createSymbolTableNode(AST_NODE *symbolNode, AST_NODE *exprNode)
+{
+    //populate the symbol table node
+    SYMBOL_TABLE_NODE *node;
+    size_t nodeSize;
+
+    // allocate space for the fixed sie and the variable part (union)
+    nodeSize = sizeof(SYMBOL_TABLE_NODE);
+    if ((node = calloc(nodeSize, 1)) == NULL)
+        yyerror("Memory allocation failed!");
+
+    if(symbolNode->type != SYMBOL_NODE_TYPE)
+        yyerror("AST_NODE not a Symbol_Node");
+
+    node->ident = malloc(sizeof(char)*strlen(symbolNode->data.symbol.ident));
+    strcpy(node->ident, symbolNode->data.symbol.ident);
+
+    node->val = exprNode;
+    node->next = NULL;
+
+    //Point to the next node in the linked list
+    /*if(rootNode == NULL)
+    {
+        //
+    } else
+        {
+            //add symbol to list using exprNode symbolTable
+        }*/
+
+
+
+    return node;
+}
+//Push old elements backward making the head the tail in LIFO order
+SYMBOL_TABLE_NODE *addSymbolToList(SYMBOL_TABLE_NODE *curHead, SYMBOL_TABLE_NODE *newElem)
+{
+
+    newElem->next = curHead;
+
 }
 
 // Called when an f_expr is created (see ciLisp.y).

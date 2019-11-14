@@ -11,9 +11,9 @@
 
 %token <sval> FUNC SYMBOL
 %token <dval> INT DOUBLE
-%token LPAREN RPAREN EOL QUIT
+%token let LPAREN RPAREN EOL QUIT
 
-%type <astNode> s_expr f_expr number
+%type <astNode> s_expr f_expr number symbol
 %type <symNode> let_section let_list let_elem
 
 %%
@@ -41,7 +41,7 @@ s_expr:
     }
     | LPAREN let_section s_expr RPAREN {
     	fprintf(stderr, "yacc: s_expr ::= LPAREN let_section s_expr RPAREN\n");
-    	$$
+        $$ = createSymbolTableNode($2, $3);
     }
     | QUIT {
         fprintf(stderr, "yacc: s_expr ::= QUIT\n");
@@ -81,20 +81,20 @@ f_expr:
 
 let_section:
     LPAREN let_list RPAREN {
-	$$ = $2;
+	    $$ = $2;
     };
 
 let_list:
     let let_elem{
-	$$ = $2;
+	    $$ = $2;
     }
     | let_list let_elem{
-	$$ = addSymbolToList($1, $2);
+	    $$ = addSymbolToList($1, $2);
     };
 
 let_elem:
     LPAREN symbol s_expr RPAREN{
-	$$ = createSymbolTableNode($2, $3);
+	    $$ = createSymbolTableNode($2, $3);
     }
 
 %%

@@ -17,6 +17,8 @@ int yylex(void);
 
 void yyerror(char *);
 
+
+
 // Enum of all operators.
 // must be in sync with funcs in resolveFunc()
 typedef enum oper {
@@ -62,6 +64,7 @@ typedef struct symbol_table_node {
     struct ast_node *val;
     struct symbol_table_node *next;
 } SYMBOL_TABLE_NODE;
+
 
 typedef struct symbol_ast_node {
     char *ident;
@@ -115,8 +118,11 @@ typedef struct ast_node {
 AST_NODE *createNumberNode(double value, NUM_TYPE type);
 
 AST_NODE *createSymbolNode(char *symbolName);
-SYMBOL_TABLE_NODE *createSymbolTableNode(char *symbolName);
-SYMBOL_TABLE_NODE *addSymbolToList();
+//AST_NODE contains a symbol table node
+SYMBOL_TABLE_NODE *createSymbolTableNode(AST_NODE *symbolNode, AST_NODE *exprNode);
+//Can make added value the new head or make the tail.
+//if new head you can get the the last created variable
+SYMBOL_TABLE_NODE *addSymbolToList(SYMBOL_TABLE_NODE *curHead, SYMBOL_TABLE_NODE *newElem);
 //Set parents here
 AST_NODE *createFunctionNode(char *funcName, AST_NODE *op1, AST_NODE *op2);
 
