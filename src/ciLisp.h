@@ -115,14 +115,14 @@ typedef struct ast_node {
     } data;
 } AST_NODE;
 
-AST_NODE *createNumberNode(double value, NUM_TYPE type);
+AST_NODE *createNumberNode(double value, NUM_TYPE type, AST_NODE *parentNode);
 
 AST_NODE *createSymbolNode(char *symbolName);
 //AST_NODE contains a symbol table node
 SYMBOL_TABLE_NODE *createSymbolTableNode(AST_NODE *symbolNode, AST_NODE *exprNode);
 //Can make added value the new head or make the tail.
 //if new head you can get the the last created variable
-SYMBOL_TABLE_NODE *addSymbolToList(SYMBOL_TABLE_NODE *curHead, SYMBOL_TABLE_NODE *newElem);
+void *addSymbolToList(SYMBOL_TABLE_NODE *curHead, SYMBOL_TABLE_NODE *newElem);
 //Set parents here
 AST_NODE *createFunctionNode(char *funcName, AST_NODE *op1, AST_NODE *op2);
 

@@ -41,9 +41,6 @@ char *nodeNames[] = {
         "Function Node"
 };
 
-//Symbol Table Linked List Root
-SYMBOL_TABLE_NODE *rootNode = NULL;
-
 
 OPER_TYPE resolveFunc(char *funcName)
 {
@@ -62,7 +59,7 @@ OPER_TYPE resolveFunc(char *funcName)
 // Sets the AST_NODE's type to number.
 // Populates the value of the contained NUMBER_AST_NODE with the argument value.
 // SEE: AST_NODE, NUM_AST_NODE, AST_NODE_TYPE.
-AST_NODE *createNumberNode(double value, NUM_TYPE type)
+AST_NODE *createNumberNode(double value, NUM_TYPE type, AST_NODE *parentNode)
 {
     //populate the ast node
     AST_NODE *node;
@@ -127,27 +124,17 @@ SYMBOL_TABLE_NODE *createSymbolTableNode(AST_NODE *symbolNode, AST_NODE *exprNod
     strcpy(node->ident, symbolNode->data.symbol.ident);
 
     node->val = exprNode;
-    node->next = NULL;
-
-    //Point to the next node in the linked list
-    /*if(rootNode == NULL)
-    {
-        //
-    } else
-        {
-            //add symbol to list using exprNode symbolTable
-        }*/
-
-
+    addSymbolToList(node, symbolNode);
 
     return node;
 }
 //Push old elements backward making the head the tail in LIFO order
-SYMBOL_TABLE_NODE *addSymbolToList(SYMBOL_TABLE_NODE *curHead, SYMBOL_TABLE_NODE *newElem)
+void *addSymbolToList(SYMBOL_TABLE_NODE *curHead, SYMBOL_TABLE_NODE *newElem)
 {
-
-    newElem->next = curHead;
-
+    if(newElem == NULL)
+        curHead->next = NULL;
+    else
+        curHead->next = newElem;
 }
 
 // Called when an f_expr is created (see ciLisp.y).
