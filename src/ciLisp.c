@@ -59,7 +59,7 @@ OPER_TYPE resolveFunc(char *funcName)
 // Sets the AST_NODE's type to number.
 // Populates the value of the contained NUMBER_AST_NODE with the argument value.
 // SEE: AST_NODE, NUM_AST_NODE, AST_NODE_TYPE.
-AST_NODE *createNumberNode(double value, NUM_TYPE type, AST_NODE *parentNode)
+AST_NODE *createNumberNode(double value, NUM_TYPE type)
 {
     //populate the ast node
     AST_NODE *node;
@@ -105,8 +105,8 @@ AST_NODE *createSymbolNode(char *symbolName)
 
     return node;
 }
-
-SYMBOL_TABLE_NODE *createSymbolTableNode(AST_NODE *symbolNode, AST_NODE *exprNode)
+//chang
+SYMBOL_TABLE_NODE *createSymbolTableNode(SYMBOL_TABLE_NODE *symbolNode, AST_NODE *exprNode)
 {
     //populate the symbol table node
     SYMBOL_TABLE_NODE *node;
@@ -117,11 +117,8 @@ SYMBOL_TABLE_NODE *createSymbolTableNode(AST_NODE *symbolNode, AST_NODE *exprNod
     if ((node = calloc(nodeSize, 1)) == NULL)
         yyerror("Memory allocation failed!");
 
-    if(symbolNode->type != SYMBOL_NODE_TYPE)
-        yyerror("AST_NODE not a Symbol_Node");
-
-    node->ident = malloc(sizeof(char)*strlen(symbolNode->data.symbol.ident));
-    strcpy(node->ident, symbolNode->data.symbol.ident);
+    node->ident = malloc(sizeof(char)*strlen(symbolNode->ident));
+    strcpy(node->ident, symbolNode->ident);
 
     node->val = exprNode;
     addSymbolToList(node, symbolNode);
@@ -166,6 +163,7 @@ AST_NODE *createFunctionNode(char *funcName, AST_NODE *op1, AST_NODE *op2)
     node->data.function.op1 = op1;
     node->data.function.op2 = op2;
 
+    // TODO Set Parents
     // TODO add the custom functions name to the node
     //node->data.function.ident = malloc(sizeof(funcName)+1);
     //node->data.function.ident = funcName;
