@@ -385,8 +385,7 @@ RET_VAL evalSymbolNode( AST_NODE *symbolNode)
 
         if(strcmp(curNode->ident, symbolNode->data.symbol.ident) == 0)
         {
-            result.type = curNode->val->data.number.type;
-            result.value = curNode->val->data.number.value;
+            result = eval(curNode->val);
             return result;
         }
 
