@@ -376,10 +376,21 @@ RET_VAL evalSymbolNode( AST_NODE *symbolNode)
 
     RET_VAL result = {INT_TYPE, NAN};
 
+    AST_NODE *symbolTableNode;
+    //symbolTable = symbolNode->parent->symbolTable;
+    symbolTableNode = symbolNode->parent;
+
+    //Find symbol table
+    while (symbolTableNode->symbolTable == NULL)
+    {
+        symbolTableNode = symbolTableNode->parent;
+    }
+
     SYMBOL_TABLE_NODE *curNode;
 
-    curNode = symbolNode->parent->symbolTable;
+    curNode = symbolTableNode->symbolTable;
 
+    //Find the Symbol
     while(curNode != NULL)
     {
 
@@ -389,7 +400,7 @@ RET_VAL evalSymbolNode( AST_NODE *symbolNode)
             return result;
         }
 
-        curNode = symbolNode->parent->symbolTable->next;
+        curNode = curNode->next;
     }
     return result;
 }
