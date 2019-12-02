@@ -15,7 +15,7 @@ func "neg"|"abs"|"exp"|"sqrt"|"add"|"sub"|"mult"|"div"|"remainder"|"log"|"pow"|"
 
 %%
 
-"let"; /*skip*/
+
 
 {int} {
     yylval.dval = strtod(yytext, NULL);
@@ -28,6 +28,11 @@ func "neg"|"abs"|"exp"|"sqrt"|"add"|"sub"|"mult"|"div"|"remainder"|"log"|"pow"|"
     fprintf(stderr, "lex: DOUBLE dval = %lf\n", yylval.dval);
     return DOUBLE;
 }
+
+"let" {
+    fprintf(stderr, "lex: LET\n");
+    return LET;
+    }
 
 "quit" {
     return QUIT;

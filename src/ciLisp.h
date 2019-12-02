@@ -1,3 +1,4 @@
+
 //ok to make helper functions if needed
 #ifndef __cilisp_h_
 #define __cilisp_h_
@@ -119,10 +120,11 @@ AST_NODE *createNumberNode(double value, NUM_TYPE type);
 
 AST_NODE *createSymbolNode(char *symbolName);
 //AST_NODE contains a symbol table node
-SYMBOL_TABLE_NODE *createSymbolTableNode(SYMBOL_TABLE_NODE *symbolNode, AST_NODE *exprNode);
+SYMBOL_TABLE_NODE *createSymbolTableNode(char *symbol, AST_NODE *exprNode);
 //Can make added value the new head or make the tail.
 //if new head you can get the the last created variable
-void *addSymbolToList(SYMBOL_TABLE_NODE *curHead, SYMBOL_TABLE_NODE *newElem);
+SYMBOL_TABLE_NODE *addSymbolToList(SYMBOL_TABLE_NODE *curHead, SYMBOL_TABLE_NODE *newElem);
+AST_NODE *parentToAstNode(SYMBOL_TABLE_NODE *symbolNode, AST_NODE *parentASTNode);
 //Set parents here
 AST_NODE *createFunctionNode(char *funcName, AST_NODE *op1, AST_NODE *op2);
 
@@ -131,6 +133,7 @@ void freeNode(AST_NODE *node);
 RET_VAL eval(AST_NODE *node);
 RET_VAL evalNumNode(NUM_AST_NODE *numNode);
 RET_VAL evalFuncNode(FUNC_AST_NODE *funcNode);
+RET_VAL evalSymbolNode(AST_NODE *symbolNode);
 
 void printRetVal(RET_VAL val);
 

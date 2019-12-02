@@ -36,9 +36,9 @@ char *funcNames[] = {
 
 char *nodeNames[] = {
 
-        "Symbol Node",
         "Number Node",
-        "Function Node"
+        "Function Node",
+        "Symbol Node"
 };
 
 
@@ -105,8 +105,8 @@ AST_NODE *createSymbolNode(char *symbolName)
 
     return node;
 }
-//chang
-SYMBOL_TABLE_NODE *createSymbolTableNode(SYMBOL_TABLE_NODE *symbolNode, AST_NODE *exprNode)
+
+SYMBOL_TABLE_NODE *createSymbolTableNode(char *symbol, AST_NODE *exprNode)
 {
     //populate the symbol table node
     SYMBOL_TABLE_NODE *node;
@@ -117,21 +117,38 @@ SYMBOL_TABLE_NODE *createSymbolTableNode(SYMBOL_TABLE_NODE *symbolNode, AST_NODE
     if ((node = calloc(nodeSize, 1)) == NULL)
         yyerror("Memory allocation failed!");
 
-    node->ident = malloc(sizeof(char)*strlen(symbolNode->ident));
-    strcpy(node->ident, symbolNode->ident);
+    node->ident = malloc(sizeof(char)*strlen(symbol));
+    strcpy(node->ident, symbol);
 
     node->val = exprNode;
-    addSymbolToList(node, symbolNode);
 
     return node;
 }
 //Push old elements backward making the head the tail in LIFO order
-void *addSymbolToList(SYMBOL_TABLE_NODE *curHead, SYMBOL_TABLE_NODE *newElem)
+SYMBOL_TABLE_NODE *addSymbolToList(SYMBOL_TABLE_NODE *curHead, SYMBOL_TABLE_NODE *newElem)
 {
-    if(newElem == NULL)
+    if(newElem == NULL) {
         curHead->next = NULL;
+    }
     else
-        curHead->next = newElem;
+        {
+            curHead->next = newElem;
+        }
+
+    return curHead;
+}
+
+AST_NODE *parentToAstNode(SYMBOL_TABLE_NODE *symbolNode, AST_NODE *parentASTNode)
+{
+    if(parentASTNode == NULL)
+    {
+        //
+    } else
+        {
+            parentASTNode->symbolTable = symbolNode;
+        }
+
+    return parentASTNode;
 }
 
 // Called when an f_expr is created (see ciLisp.y).
@@ -162,6 +179,10 @@ AST_NODE *createFunctionNode(char *funcName, AST_NODE *op1, AST_NODE *op2)
     node->data.function.oper = resolveFunc(funcName);
     node->data.function.op1 = op1;
     node->data.function.op2 = op2;
+    if (op1 != NULL)
+        op1->parent = node;
+    if (op2 != NULL)
+        op2->parent = node;
 
     // TODO Set Parents
     // TODO add the custom functions name to the node
@@ -220,6 +241,9 @@ RET_VAL eval(AST_NODE *node)
             break;
         case NUM_NODE_TYPE:
             result = evalNumNode( &node->data.number);
+            break;
+        case SYMBOL_NODE_TYPE:
+            result = evalSymbolNode( node);
             break;
         default:
             yyerror("Invalid AST_NODE_TYPE, probably invalid writes somewhere!");
@@ -342,6 +366,32 @@ RET_VAL evalFuncNode(FUNC_AST_NODE *funcNode)
             break;
     }
 
+    return result;
+}
+
+RET_VAL evalSymbolNode( AST_NODE *symbolNode)
+{
+    if (!symbolNode)
+        return (RET_VAL){INT_TYPE, NAN};
+
+    RET_VAL result = {INT_TYPE, NAN};
+
+    SYMBOL_TABLE_NODE *curNode;
+
+    curNode = symbolNode->parent->symbolTable;
+
+    while(curNode != NULL)
+    {
+
+        if(strcmp(curNode->ident, symbolNode->data.symbol.ident) == 0)
+        {
+            result.type = curNode->val->data.number.type;
+            result.value = curNode->val->data.number.value;
+            return result;
+        }
+
+        curNode = symbolNode->parent->symbolTable->next;
+    }
     return result;
 }
 
