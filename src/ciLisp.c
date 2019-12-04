@@ -151,10 +151,16 @@ SYMBOL_TABLE_NODE *createSymbolTableNode(char *symbol, AST_NODE *exprNode, char 
         }
         else
             {
+                //Block for casting of a let section.
                 //Check if double and see if casting as int to give warning message.
                 node->val_type = evalType(typeName);
+                node->val->data.number.type = node->val_type;
                 if(node->val_type == INT_TYPE && !checkNumberType(node->val->data.number.value))
-                    printf("\nWARNING: precision loss in the assignment for variable <name>\n");
+                {
+                    node->val->data.number.value = floor(node->val->data.number.value);
+                    printf("\nWARNING: precision loss in the assignment for variable %s\n", symbol);
+                }
+
             }
     }
 
@@ -327,75 +333,91 @@ RET_VAL evalFuncNode(FUNC_AST_NODE *funcNode)
         case NEG_OPER:
             op1 = eval(funcNode->op1);
             result.value = -op1.value;
+            result.type = op1.type;
             break;
         case ABS_OPER:
             op1 = eval(funcNode->op1);
             result.value = fabs(op1.value);
+            result.type = op1.type;
             break;
         case EXP_OPER:
             op1 = eval(funcNode->op1);
             result.value = exp(op1.value);
+            result.type = op1.type;
             break;
         case SQRT_OPER:
             op1 = eval(funcNode->op1);
             result.value = sqrt(op1.value);
+            result.type = op1.type;
             break;
         case ADD_OPER:
             op1 = eval(funcNode->op1);
             op2 = eval(funcNode->op2);
             result.value = op1.value + op2.value;
+            result.type = op1.type || op2.type;
             break;
         case SUB_OPER:
             op1 = eval(funcNode->op1);
             op2 = eval(funcNode->op2);
             result.value = op1.value - op2.value;
+            result.type = op1.type || op2.type;
             break;
         case MULT_OPER:
             op1 = eval(funcNode->op1);
             op2 = eval(funcNode->op2);
             result.value = op1.value * op2.value;
+            result.type = op1.type || op2.type;
             break;
         case DIV_OPER:
             op1 = eval(funcNode->op1);
             op2 = eval(funcNode->op2);
             result.value = op1.value / op2.value;
+            result.type = op1.type || op2.type;
             break;
         case REMAINDER_OPER:
             op1 = eval(funcNode->op1);
             op2 = eval(funcNode->op2);
             result.value = remainder(op1.value, op2.value);
+            result.type = op1.type || op2.type;
             break;
         case LOG_OPER:
             op1 = eval(funcNode->op1);
             result.value = log(op1.value);
+            result.type = op1.type;
             break;
         case POW_OPER:
             op1 = eval(funcNode->op1);
             op2 = eval(funcNode->op2);
             result.value = pow(op1.value, op2.value);
+            result.type = op1.type || op2.type;
             break;
         case MAX_OPER:
             op1 = eval(funcNode->op1);
             op2 = eval(funcNode->op2);
             result.value = fmax(op1.value, op2.value);
+            result.type = op1.type || op2.type;
             break;
         case MIN_OPER:
             op1 = eval(funcNode->op1);
             op2 = eval(funcNode->op2);
             result.value = fmin(op1.value, op2.value);
+            result.type = op1.type || op2.type;
             break;
         case EXP2_OPER:
             op1 = eval(funcNode->op1);
             result.value = exp2(op1.value);
+            result.type = op1.type;
             break;
         case CBRT_OPER:
             op1 = eval(funcNode->op1);
             result.value = cbrt(op1.value);
+            result.type = op1.type;
             break;
         case HYPOT_OPER:
             op1 = eval(funcNode->op1);
             op2 = eval(funcNode->op2);
             result.value = hypot(op1.value, op2.value);
+            result.type = op1.type || op2.type;
             break;
         default:
             printf("\nNot a valid operation!\n");
@@ -468,10 +490,11 @@ NUM_TYPE evalType(char *type)
     {
         itemType = INT_TYPE;
     }
-    else if(strcmp("double", type) == 0)
+    else
     {
         itemType = DOUBLE_TYPE;
     }
 
     return  itemType;
 }
+
