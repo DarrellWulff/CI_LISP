@@ -402,6 +402,7 @@ RET_VAL evalSymbolNode( AST_NODE *symbolNode)
 
         curNode = curNode->next;
     }
+    yyerror("Missing Symbol!");
     return result;
 }
 

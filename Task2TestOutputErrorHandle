@@ -1,0 +1,54 @@
+/home/wulff/Desktop/Comp232/CILISP/Task2real/CI_LISP/cmake-build-debug/cilisp
+
+> ((let (abc 1)) (sub ((let (abc 2)) (add abc de)) abc))
+
+lex: LPAREN
+lex: LPAREN
+lex: LET
+lex: LPAREN
+lex: SYMBOL sval = abc
+lex: INT dval = 1.000000
+yacc: number ::= INT
+yacc: s_expr ::= number
+lex: RPAREN
+yacc:  LPAREN SYMBOL s_expr RPAREN
+yacc: LET_ELEM
+lex: RPAREN
+yacc: LET_SECTION
+lex: LPAREN
+lex: FUNC sval = sub
+lex: LPAREN
+lex: LPAREN
+lex: LET
+lex: LPAREN
+lex: SYMBOL sval = abc
+lex: INT dval = 2.000000
+yacc: number ::= INT
+yacc: s_expr ::= number
+lex: RPAREN
+yacc:  LPAREN SYMBOL s_expr RPAREN
+yacc: LET_ELEM
+lex: RPAREN
+yacc: LET_SECTION
+lex: LPAREN
+lex: FUNC sval = add
+lex: SYMBOL sval = abc
+yacc: symbol ::= SYMBOL
+lex: SYMBOL sval = de
+yacc: symbol ::= SYMBOL
+lex: RPAREN
+yacc: s_expr ::= LPAREN FUNC expr expr RPAREN
+lex: RPAREN
+yacc: s_expr ::= LPAREN let_section s_expr RPAREN
+lex: SYMBOL sval = abc
+yacc: symbol ::= SYMBOL
+lex: RPAREN
+yacc: s_expr ::= LPAREN FUNC expr expr RPAREN
+lex: RPAREN
+yacc: s_expr ::= LPAREN let_section s_expr RPAREN
+lex: EOL
+yacc: program ::= s_expr EOL
+
+ERROR: Missing Symbol!
+Number Node value: nan
+> 
