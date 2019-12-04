@@ -8,6 +8,7 @@
 
 letters [a-zA-Z]
 symbol {letters}+
+type "int"|"double"
 digit [0-9]
 int [+-]?{digit}+
 double [+-]?{digit}\.{digit}*
@@ -15,7 +16,12 @@ func "neg"|"abs"|"exp"|"sqrt"|"add"|"sub"|"mult"|"div"|"remainder"|"log"|"pow"|"
 
 %%
 
-
+{type} {
+    yylval.sval = (char *) malloc(strlen(yytext)*sizeof(char));
+    strcpy(yylval.sval, yytext);
+    fprintf(stderr, "lex: TYPE sval = %s\n", yylval.sval);
+    return TYPE;
+}
 
 {int} {
     yylval.dval = strtod(yytext, NULL);

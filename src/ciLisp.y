@@ -9,7 +9,7 @@
     struct symbol_table_node *symNode;
 }
 
-%token <sval> FUNC SYMBOL
+%token <sval> FUNC SYMBOL TYPE
 %token <dval> INT DOUBLE
 %token LPAREN RPAREN LET EOL QUIT
 
@@ -56,11 +56,19 @@ s_expr:
 number:
     INT {
         fprintf(stderr, "yacc: number ::= INT\n");
-        $$ = createNumberNode($1, INT_TYPE);
+        $$ = createNumberNode(NULL, $1);
     }
     | DOUBLE {
         fprintf(stderr, "yacc: number ::= DOUBLE\n");
-        $$ = createNumberNode($1, DOUBLE_TYPE);
+        $$ = createNumberNode(NULL, $1);
+    }
+    | TYPE INT {
+        fprintf(stderr, "yacc: number ::= INT\n");
+        $$ = createNumberNode($1, $2);
+    }
+    | TYPE DOUBLE {
+        fprintf(stderr, "yacc: number ::= DOUBLE\n");
+        $$ = createNumberNode($1, $2);
     };
 
 f_expr:
@@ -92,8 +100,12 @@ let_list:
 let_elem:
     LPAREN SYMBOL s_expr RPAREN{
     	fprintf(stderr,"yacc:  LPAREN SYMBOL s_expr RPAREN\n");
-	$$ = createSymbolTableNode($2, $3);
+	$$ = createSymbolTableNode($2, $3, NULL);
     }
+    | LPAREN TYPE SYMBOL s_expr RPAREN{
+        fprintf(stderr,"yacc:  LPAREN SYMBOL s_expr RPAREN\n");
+    	$$ = createSymbolTableNode($3, $4, $2);
+    };
 
 %%
 

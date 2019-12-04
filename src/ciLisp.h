@@ -59,23 +59,23 @@ typedef enum {
     FUNC_NODE_TYPE
 } AST_NODE_TYPE;
 
-//Variable Nodes "let_section"
-typedef struct symbol_table_node {
-    char *ident;
-    struct ast_node *val;
-    struct symbol_table_node *next;
-} SYMBOL_TABLE_NODE;
-
-
-typedef struct symbol_ast_node {
-    char *ident;
-} SYMBOL_AST_NODE;
-
 // Types of numeric values
 typedef enum {
     INT_TYPE,
     DOUBLE_TYPE
 } NUM_TYPE;
+
+//Variable Nodes "let_section"
+typedef struct symbol_table_node {
+    NUM_TYPE val_type;
+    char *ident;
+    struct ast_node *val;
+    struct symbol_table_node *next;
+} SYMBOL_TABLE_NODE;
+
+typedef struct symbol_ast_node {
+    char *ident;
+} SYMBOL_AST_NODE;
 
 // Node to store a number.
 // could remove union and just truncate a double
@@ -116,11 +116,11 @@ typedef struct ast_node {
     } data;
 } AST_NODE;
 
-AST_NODE *createNumberNode(double value, NUM_TYPE type);
+AST_NODE *createNumberNode( char *typeName, double value);
 
 AST_NODE *createSymbolNode(char *symbolName);
 //AST_NODE contains a symbol table node
-SYMBOL_TABLE_NODE *createSymbolTableNode(char *symbol, AST_NODE *exprNode);
+SYMBOL_TABLE_NODE *createSymbolTableNode(char *symbol, AST_NODE *exprNode, char *typeName);
 //Can make added value the new head or make the tail.
 //if new head you can get the the last created variable
 SYMBOL_TABLE_NODE *addSymbolToList(SYMBOL_TABLE_NODE *curHead, SYMBOL_TABLE_NODE *newElem);
@@ -139,5 +139,6 @@ void printRetVal(RET_VAL val);
 
 //HELPER FUNCTIONS
 bool checkNumberType(double val);
+NUM_TYPE evalType(char *type);
 
 #endif

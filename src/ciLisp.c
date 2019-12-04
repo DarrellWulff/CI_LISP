@@ -59,7 +59,7 @@ OPER_TYPE resolveFunc(char *funcName)
 // Sets the AST_NODE's type to number.
 // Populates the value of the contained NUMBER_AST_NODE with the argument value.
 // SEE: AST_NODE, NUM_AST_NODE, AST_NODE_TYPE.
-AST_NODE *createNumberNode(double value, NUM_TYPE type)
+AST_NODE *createNumberNode( char *typeName, double value)
 {
     //populate the ast node
     AST_NODE *node;
@@ -72,16 +72,37 @@ AST_NODE *createNumberNode(double value, NUM_TYPE type)
 
     // TODO set the AST_NODE's type, assign values to contained NUM_AST_NODE
     node->type = NUM_NODE_TYPE;
-
-    if(checkNumberType(value))
+    if(typeName == NULL)
     {
-        node->data.number.value = floor(value);
-        node->data.number.type = INT_TYPE;
-    }
-    else
+        if(checkNumberType(value))
+        {
+            node->data.number.value = floor(value);
+            node->data.number.type = INT_TYPE;
+        }
+        else
         {
             node->data.number.value = value;
             node->data.number.type = DOUBLE_TYPE;
+        }
+    }
+    else
+        {
+            node->data.number.type = evalType(typeName);
+            //node->data.symbol.ident = malloc(sizeof(char)*strlen(typeName));
+            //strcpy(node->data.symbol.ident, typeName);
+
+            switch (node->data.number.type)
+            {
+                case INT_TYPE:
+                    node->data.number.value = floor(value);
+                    break;
+                case DOUBLE_TYPE:
+                    node->data.number.value = value;
+                    break;
+                default:
+                    printf("\nNumber Node creation went wrong\n");
+                    break;
+            }
         }
 
     return node;
@@ -106,7 +127,7 @@ AST_NODE *createSymbolNode(char *symbolName)
     return node;
 }
 
-SYMBOL_TABLE_NODE *createSymbolTableNode(char *symbol, AST_NODE *exprNode)
+SYMBOL_TABLE_NODE *createSymbolTableNode(char *symbol, AST_NODE *exprNode, char *typeName)
 {
     //populate the symbol table node
     SYMBOL_TABLE_NODE *node;
@@ -121,6 +142,21 @@ SYMBOL_TABLE_NODE *createSymbolTableNode(char *symbol, AST_NODE *exprNode)
     strcpy(node->ident, symbol);
 
     node->val = exprNode;
+
+    if(node->val->type == NUM_NODE_TYPE)
+    {
+        if(typeName == NULL)
+        {
+            node->val_type = node->val->data.number.type;
+        }
+        else
+            {
+                //Check if double and see if casting as int to give warning message.
+                node->val_type = evalType(typeName);
+                if(node->val_type == INT_TYPE && !checkNumberType(node->val->data.number.value))
+                    printf("\nWARNING: precision loss in the assignment for variable <name>\n");
+            }
+    }
 
     return node;
 }
@@ -422,4 +458,20 @@ bool checkNumberType(double val)
         return true;
     else
         return false;
+}
+
+NUM_TYPE evalType(char *type)
+{
+    NUM_TYPE itemType;
+
+    if(strcmp("int", type) == 0)
+    {
+        itemType = INT_TYPE;
+    }
+    else if(strcmp("double", type) == 0)
+    {
+        itemType = DOUBLE_TYPE;
+    }
+
+    return  itemType;
 }
