@@ -200,7 +200,7 @@ AST_NODE *parentToAstNode(SYMBOL_TABLE_NODE *symbolNode, AST_NODE *parentASTNode
 //      - An OPER_TYPE (the enum identifying the specific function being called)
 //      - 2 AST_NODEs, the operands
 // SEE: AST_NODE, FUNC_AST_NODE, AST_NODE_TYPE.
-AST_NODE *createFunctionNode(char *funcName, AST_NODE *op1, AST_NODE *op2)
+AST_NODE *createFunctionNode(char *funcName, AST_NODE *opList)
 {
     AST_NODE *node;
     size_t nodeSize;
@@ -219,7 +219,7 @@ AST_NODE *createFunctionNode(char *funcName, AST_NODE *op1, AST_NODE *op2)
     // For functions other than CUSTOM_OPER, you should free the funcName after you're assigned the OPER_TYPE.
     node->type = FUNC_NODE_TYPE;
     node->data.function.oper = resolveFunc(funcName);
-    node->data.function.op1 = op1;
+    /*node->data.function.op1 = op1;
     node->data.function.op2 = op2;
     if (op1 != NULL)
         op1->parent = node;
@@ -229,11 +229,24 @@ AST_NODE *createFunctionNode(char *funcName, AST_NODE *op1, AST_NODE *op2)
     // TODO Set Parents
     // TODO add the custom functions name to the node
     //node->data.function.ident = malloc(sizeof(funcName)+1);
-    //node->data.function.ident = funcName;
+    //node->data.function.ident = funcName;*/
     free(funcName);//Check if a custom function BEFORE FREEING!
 
 
     return node;
+}
+
+AST_NODE *addFunctionNodeToList(AST_NODE *curHead, AST_NODE *newElem)
+{
+    if(curHead == NULL)
+    {
+        //
+    } else
+    {
+        curHead->next = newElem;
+    }
+
+    return newElem;
 }
 
 // Called after execution is done on the base of the tree.
@@ -248,8 +261,8 @@ void freeNode(AST_NODE *node)
     if (node->type == FUNC_NODE_TYPE)
     {
         // Recursive calls to free child nodes
-        freeNode(node->data.function.op1);
-        freeNode(node->data.function.op2);
+        freeNode(node->data.function.opList->next);
+
 
         // Free up identifier string if necessary
         if (node->data.function.oper == CUSTOM_OPER)
@@ -327,7 +340,7 @@ RET_VAL evalFuncNode(FUNC_AST_NODE *funcNode)
     //recommend look at op in h file and get one op working to start
     RET_VAL op1;
     RET_VAL op2;
-
+    /*
     switch (funcNode->oper)
     {
         case NEG_OPER:
@@ -428,7 +441,7 @@ RET_VAL evalFuncNode(FUNC_AST_NODE *funcNode)
         default:
             printf("\nNot a valid operation!\n");
             break;
-    }
+    }*/
 
     return result;
 }
