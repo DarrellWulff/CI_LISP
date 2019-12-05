@@ -419,6 +419,12 @@ RET_VAL evalFuncNode(FUNC_AST_NODE *funcNode)
             result.value = hypot(op1.value, op2.value);
             result.type = op1.type || op2.type;
             break;
+        case PRINT_OPER:
+            op1 = eval(funcNode->op1);
+            result.value = op1.value;
+            result.type = op1.type;
+            printf("\n%lf", result.value);
+            break;
         default:
             printf("\nNot a valid operation!\n");
             break;
