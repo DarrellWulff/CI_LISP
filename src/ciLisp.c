@@ -169,6 +169,7 @@ SYMBOL_TABLE_NODE *createSymbolTableNode(char *symbol, AST_NODE *exprNode, char 
 //Push old elements backward making the head the tail in LIFO order
 SYMBOL_TABLE_NODE *addSymbolToList(SYMBOL_TABLE_NODE *curHead, SYMBOL_TABLE_NODE *newElem)
 {
+
     if(newElem == NULL) {
         curHead->next = NULL;
     }
@@ -202,6 +203,7 @@ AST_NODE *parentToAstNode(SYMBOL_TABLE_NODE *symbolNode, AST_NODE *parentASTNode
 // SEE: AST_NODE, FUNC_AST_NODE, AST_NODE_TYPE.
 AST_NODE *createFunctionNode(char *funcName, AST_NODE *opList)
 {
+
     AST_NODE *node;
     size_t nodeSize;
 
@@ -219,34 +221,37 @@ AST_NODE *createFunctionNode(char *funcName, AST_NODE *opList)
     // For functions other than CUSTOM_OPER, you should free the funcName after you're assigned the OPER_TYPE.
     node->type = FUNC_NODE_TYPE;
     node->data.function.oper = resolveFunc(funcName);
-    /*node->data.function.op1 = op1;
-    node->data.function.op2 = op2;
-    if (op1 != NULL)
-        op1->parent = node;
-    if (op2 != NULL)
-        op2->parent = node;
+    node->data.function.opList = opList;
+    //Populate operations for the function node using the list
+    AST_NODE *curOpNode;
+    curOpNode = opList;
+    while (curOpNode != NULL)
+    {
+        curOpNode->parent = node;
+        curOpNode = curOpNode->next;
+    }
 
     // TODO Set Parents
     // TODO add the custom functions name to the node
-    //node->data.function.ident = malloc(sizeof(funcName)+1);
-    //node->data.function.ident = funcName;*/
+    node->data.function.ident = malloc(sizeof(funcName)+1);
+    strcpy(node->data.function.ident, funcName);
     free(funcName);//Check if a custom function BEFORE FREEING!
-
 
     return node;
 }
 
-AST_NODE *addFunctionNodeToList(AST_NODE *curHead, AST_NODE *newElem)
+AST_NODE *addFunctionNodeToList(AST_NODE *nextOp, AST_NODE *curOpList)
 {
-    if(curHead == NULL)
+
+    if(nextOp == NULL)
     {
         //
     } else
     {
-        curHead->next = newElem;
+        nextOp->next = curOpList;
     }
 
-    return newElem;
+    return nextOp;
 }
 
 // Called after execution is done on the base of the tree.
@@ -338,110 +343,128 @@ RET_VAL evalFuncNode(FUNC_AST_NODE *funcNode)
     //eval these in the switch
     // return double if one type is a double
     //recommend look at op in h file and get one op working to start
+    //op2 only for operations that take two ops that aren't add, mult, or print
+    AST_NODE *curOpNode;
+    curOpNode = funcNode->opList;
     RET_VAL op1;
     RET_VAL op2;
-    /*
+    funcNode->oper = checkFunctionOpList(funcNode);
     switch (funcNode->oper)
     {
         case NEG_OPER:
-            op1 = eval(funcNode->op1);
-            result.value = -op1.value;
+            op1 = eval(curOpNode);
+            result.value = op1.value;
             result.type = op1.type;
             break;
         case ABS_OPER:
-            op1 = eval(funcNode->op1);
+            op1 = eval(curOpNode);
             result.value = fabs(op1.value);
             result.type = op1.type;
             break;
         case EXP_OPER:
-            op1 = eval(funcNode->op1);
+            op1 = eval(curOpNode);
             result.value = exp(op1.value);
             result.type = op1.type;
             break;
         case SQRT_OPER:
-            op1 = eval(funcNode->op1);
+            op1 = eval(curOpNode);
             result.value = sqrt(op1.value);
             result.type = op1.type;
             break;
         case ADD_OPER:
-            op1 = eval(funcNode->op1);
-            op2 = eval(funcNode->op2);
-            result.value = op1.value + op2.value;
-            result.type = op1.type || op2.type;
+            result.value = 0;
+            while (curOpNode != NULL)
+            {
+                op1 = eval(curOpNode);
+                result.value += op1.value;
+                result.type = result.type || op1.type;
+                curOpNode = curOpNode->next;
+            }
             break;
         case SUB_OPER:
-            op1 = eval(funcNode->op1);
-            op2 = eval(funcNode->op2);
+            op1 = eval(curOpNode);
+            op2 = eval(curOpNode->next);
             result.value = op1.value - op2.value;
             result.type = op1.type || op2.type;
             break;
         case MULT_OPER:
-            op1 = eval(funcNode->op1);
-            op2 = eval(funcNode->op2);
-            result.value = op1.value * op2.value;
-            result.type = op1.type || op2.type;
+            result.value = 1;
+            while (curOpNode != NULL)
+            {
+                op1 = eval(curOpNode);
+                result.value *= op1.value;
+                result.type = result.type || op1.type;
+                curOpNode = curOpNode->next;
+            }
             break;
         case DIV_OPER:
-            op1 = eval(funcNode->op1);
-            op2 = eval(funcNode->op2);
+            op1 = eval(curOpNode);
+            op2 = eval(curOpNode->next);
             result.value = op1.value / op2.value;
             result.type = op1.type || op2.type;
             break;
         case REMAINDER_OPER:
-            op1 = eval(funcNode->op1);
-            op2 = eval(funcNode->op2);
+            op1 = eval(curOpNode);
+            op2 = eval(curOpNode->next);
             result.value = remainder(op1.value, op2.value);
             result.type = op1.type || op2.type;
             break;
         case LOG_OPER:
-            op1 = eval(funcNode->op1);
+            op1 = eval(curOpNode);
             result.value = log(op1.value);
             result.type = op1.type;
             break;
         case POW_OPER:
-            op1 = eval(funcNode->op1);
-            op2 = eval(funcNode->op2);
+            op1 = eval(curOpNode);
+            op2 = eval(curOpNode->next);
             result.value = pow(op1.value, op2.value);
             result.type = op1.type || op2.type;
             break;
         case MAX_OPER:
-            op1 = eval(funcNode->op1);
-            op2 = eval(funcNode->op2);
+            op1 = eval(curOpNode);
+            op2 = eval(curOpNode->next);
             result.value = fmax(op1.value, op2.value);
             result.type = op1.type || op2.type;
             break;
         case MIN_OPER:
-            op1 = eval(funcNode->op1);
-            op2 = eval(funcNode->op2);
+            op1 = eval(curOpNode);
+            op2 = eval(curOpNode->next);
             result.value = fmin(op1.value, op2.value);
             result.type = op1.type || op2.type;
             break;
         case EXP2_OPER:
-            op1 = eval(funcNode->op1);
+            op1 = eval(curOpNode);
             result.value = exp2(op1.value);
             result.type = op1.type;
             break;
         case CBRT_OPER:
-            op1 = eval(funcNode->op1);
+            op1 = eval(curOpNode);
             result.value = cbrt(op1.value);
             result.type = op1.type;
             break;
         case HYPOT_OPER:
-            op1 = eval(funcNode->op1);
-            op2 = eval(funcNode->op2);
+            op1 = eval(curOpNode);
+            op2 = eval(curOpNode->next);
             result.value = hypot(op1.value, op2.value);
             result.type = op1.type || op2.type;
             break;
         case PRINT_OPER:
-            op1 = eval(funcNode->op1);
-            result.value = op1.value;
-            result.type = op1.type;
+            printf("\n=>");
+            while (curOpNode != NULL)
+            {
+                op1 = eval(curOpNode);
+                result.value = op1.value;
+                result.type = op1.type;
+                printf(" %lf", result.value);
+                curOpNode = curOpNode->next;
+            }
+
             printf("\n%lf", result.value);
             break;
         default:
             printf("\nNot a valid operation!\n");
             break;
-    }*/
+    }
 
     return result;
 }
@@ -517,3 +540,26 @@ NUM_TYPE evalType(char *type)
     return  itemType;
 }
 
+int checkFunctionOpList(FUNC_AST_NODE *funcNode)
+{
+    AST_NODE *curOpNode;
+    curOpNode = funcNode->opList;
+
+    if(curOpNode == NULL)
+    {
+        printf("\nERROR: too few parameters for the function %s\n", funcNode->ident);
+        return -1;
+    }
+
+    if(funcNode->oper != ADD_OPER || funcNode->oper != MULT_OPER)
+    {
+        if(curOpNode->next == NULL)
+        {
+            printf("\nERROR: too few parameters for the function %s\n", funcNode->ident);
+            return -1;
+        }
+        printf("\nWARNING: too many parameters for the function %s\n", funcNode->ident);
+    }
+
+    return funcNode->oper;
+}

@@ -128,7 +128,7 @@ AST_NODE *parentToAstNode(SYMBOL_TABLE_NODE *symbolNode, AST_NODE *parentASTNode
 //Set parents here
 //AST_NODE *createFunctionNode(char *funcName, AST_NODE *op1, AST_NODE *op2);
 AST_NODE *createFunctionNode(char *funcName, AST_NODE *op1List);
-AST_NODE *addFunctionNodeToList(AST_NODE *curHead, AST_NODE *newElem);
+AST_NODE *addFunctionNodeToList(AST_NODE *nextOp, AST_NODE *curOpList);
 
 void freeNode(AST_NODE *node);
 
@@ -142,6 +142,7 @@ void printRetVal(RET_VAL val);
 //HELPER FUNCTIONS
 bool checkNumberType(double val);
 NUM_TYPE evalType(char *type);
+int checkFunctionOpList(FUNC_AST_NODE *funcNode);
 
 
 #endif
