@@ -44,6 +44,10 @@ func "neg"|"abs"|"exp"|"sqrt"|"add"|"sub"|"mult"|"div"|"remainder"|"log"|"pow"|"
     return QUIT;
     }
 
+"cond" {
+    return COND;
+    }
+
 {func} {
     yylval.sval = (char *) malloc(strlen(yytext)*sizeof(char));
     strcpy(yylval.sval, yytext);

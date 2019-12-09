@@ -38,7 +38,8 @@ char *nodeNames[] = {
 
         "Number Node",
         "Function Node",
-        "Symbol Node"
+        "Symbol Node",
+        "Conditional Node"
 };
 
 
@@ -183,6 +184,7 @@ SYMBOL_TABLE_NODE *addSymbolToList(SYMBOL_TABLE_NODE *curHead, SYMBOL_TABLE_NODE
 
 AST_NODE *parentToAstNode(SYMBOL_TABLE_NODE *symbolNode, AST_NODE *parentASTNode)
 {
+
     if(parentASTNode == NULL)
     {
         //
@@ -254,6 +256,25 @@ AST_NODE *addFunctionNodeToList(AST_NODE *nextOp, AST_NODE *curOpList)
     return nextOp;
 }
 
+//Make a conditional node
+AST_NODE *createConditionalNode(AST_NODE *condNode, AST_NODE *trueNode, AST_NODE *falseNode)
+{
+    AST_NODE *node;
+    size_t nodeSize;
+
+    // allocate space (or error)
+    nodeSize = sizeof(AST_NODE);
+    if ((node = calloc(nodeSize, 1)) == NULL)
+        yyerror("Memory allocation failed!");
+
+    node->type = COND_NODE_TYPE;
+    node->data.condition.cond = condNode;
+    node->data.condition.trueCond = trueNode;
+    node->data.condition.falseCond = falseNode;
+
+    return node;
+}
+
 // Called after execution is done on the base of the tree.
 // (see the program production in ciLisp.y)
 // Recursively frees the whole abstract syntax tree.
@@ -303,7 +324,10 @@ RET_VAL eval(AST_NODE *node)
             result = evalNumNode( &node->data.number);
             break;
         case SYMBOL_NODE_TYPE:
-            result = evalSymbolNode( node);
+            result = evalSymbolNode(node);
+            break;
+        case COND_NODE_TYPE:
+            result = evalConditionalNode(node);
             break;
         default:
             yyerror("Invalid AST_NODE_TYPE, probably invalid writes somewhere!");
@@ -348,7 +372,12 @@ RET_VAL evalFuncNode(FUNC_AST_NODE *funcNode)
     curOpNode = funcNode->opList;
     RET_VAL op1;
     RET_VAL op2;
-    funcNode->oper = checkFunctionOpList(funcNode);
+
+    //Use for print op to make sure it prints correctly with a read func
+    bool printFlag = false;
+
+    if(funcNode->oper != READ_OPER && funcNode->oper != RAND_OPER)
+        funcNode->oper = checkFunctionOpList(funcNode);
     switch (funcNode->oper)
     {
         case NEG_OPER:
@@ -449,17 +478,51 @@ RET_VAL evalFuncNode(FUNC_AST_NODE *funcNode)
             result.type = op1.type || op2.type;
             break;
         case PRINT_OPER:
-            printf("\n=>");
             while (curOpNode != NULL)
             {
                 op1 = eval(curOpNode);
                 result.value = op1.value;
                 result.type = op1.type;
+                if(!printFlag)
+                {
+                    printFlag = true;
+                    printf("\n=>");
+                }
                 printf(" %lf", result.value);
                 curOpNode = curOpNode->next;
             }
-
             printf("\n%lf", result.value);
+            break;
+        case READ_OPER:
+            result = checkReadNumber();
+            break;
+        case RAND_OPER:
+            result.value = rand()/(double)RAND_MAX;
+            result.type = DOUBLE_TYPE;
+            break;
+        case EQUAL_OPER:
+            op1 = eval(curOpNode);
+            op2 = eval(curOpNode->next);
+            if(op1.value == op2.value)
+                result.value = 1;
+            else
+                result.value = 0;
+            break;
+        case LESS_OPER:
+            op1 = eval(curOpNode);
+            op2 = eval(curOpNode->next);
+            if(op1.value < op2.value)
+                result.value = 1;
+            else
+                result.value = 0;
+            break;
+        case GREATER_OPER:
+            op1 = eval(curOpNode);
+            op2 = eval(curOpNode->next);
+            if(op1.value > op2.value)
+                result.value = 1;
+            else
+                result.value = 0;
             break;
         default:
             printf("\nNot a valid operation!\n");
@@ -506,6 +569,34 @@ RET_VAL evalSymbolNode( AST_NODE *symbolNode)
     return result;
 }
 
+RET_VAL evalConditionalNode(AST_NODE *condNode)
+{
+    if (!condNode)
+        return (RET_VAL){INT_TYPE, NAN};
+
+    RET_VAL result = {INT_TYPE, NAN};
+
+    //Make sure the conditional has the need symbols in scope
+    // for each of the cases.
+    condNode->data.condition.cond->symbolTable = condNode->symbolTable;
+    condNode->data.condition.trueCond->symbolTable = condNode->symbolTable;
+    condNode->data.condition.falseCond->symbolTable = condNode->symbolTable;
+
+    result = eval(condNode->data.condition.cond);
+
+    if(result.value != 0)
+    {
+        result = eval(condNode->data.condition.trueCond);
+    }
+    else
+        {
+            result = eval(condNode->data.condition.falseCond);
+        }
+
+    return result;
+
+}
+
 // prints the type and value of a RET_VAL
 void printRetVal(RET_VAL val)
 {
@@ -522,6 +613,50 @@ bool checkNumberType(double val)
         return true;
     else
         return false;
+}
+
+RET_VAL checkReadNumber()
+{
+    RET_VAL result = {INT_TYPE, NAN};
+
+    //Read into a buffer in order to convert into decimal and take care
+    //of edge cases.
+    char inputBuffer[256];
+    char *currentRead;
+    printf("read := ");
+    if(fgets(inputBuffer, sizeof(inputBuffer), stdin))
+    {
+        int length = strlen(inputBuffer);
+        inputBuffer[length-1] = '\0';
+
+        if(inputBuffer[0] == '.')
+        {
+            inputBuffer[0] = '0';
+            inputBuffer[1] = '\0';
+        }
+        else
+            {
+                //Find a lone dot and get ready to convert our value to return
+                int i = 1;
+                while (inputBuffer[i] != '\0')
+                {
+                    if(inputBuffer[i] == '.')
+                    {
+                        result.type = DOUBLE_TYPE;
+                        if(inputBuffer[i+1] == '\0')
+                        {
+                            inputBuffer[i + 1] = '0';
+                            inputBuffer[i + 2] = '\0';
+                            break;
+                        }
+                    }
+                    i++;
+                }
+            }
+    }
+    //Exit input checking and convert values
+    result.value = strtod(inputBuffer, &currentRead);
+    return result;
 }
 
 NUM_TYPE evalType(char *type)
@@ -556,14 +691,14 @@ int checkFunctionOpList(FUNC_AST_NODE *funcNode)
         return funcNode->oper;
     }
 
-    if(funcNode->oper != ADD_OPER && funcNode->oper != MULT_OPER)
+    if(funcNode->oper != ADD_OPER && funcNode->oper != MULT_OPER && funcNode->oper != PRINT_OPER)
     {
         if(curOpNode->next == NULL)
         {
             printf("\nERROR: too few parameters for the function %s\n", funcNode->ident);
             return -1;
         }
-        if(curOpNode->next->next != NULL)
+        if(curOpNode->next->next != NULL )
             printf("\nWARNING: too many parameters for the function %s\n", funcNode->ident);
     }
 
