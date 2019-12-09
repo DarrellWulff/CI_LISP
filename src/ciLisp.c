@@ -551,14 +551,20 @@ int checkFunctionOpList(FUNC_AST_NODE *funcNode)
         return -1;
     }
 
-    if(funcNode->oper != ADD_OPER || funcNode->oper != MULT_OPER)
+    if(funcNode->oper < 4 || funcNode->oper == 9 || funcNode->oper == 13 || funcNode->oper == 14)
+    {
+        return funcNode->oper;
+    }
+
+    if(funcNode->oper != ADD_OPER && funcNode->oper != MULT_OPER)
     {
         if(curOpNode->next == NULL)
         {
             printf("\nERROR: too few parameters for the function %s\n", funcNode->ident);
             return -1;
         }
-        printf("\nWARNING: too many parameters for the function %s\n", funcNode->ident);
+        if(curOpNode->next->next != NULL)
+            printf("\nWARNING: too many parameters for the function %s\n", funcNode->ident);
     }
 
     return funcNode->oper;
