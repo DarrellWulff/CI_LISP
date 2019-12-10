@@ -4,72 +4,25 @@ Darrell Wulff
 CI LISP Project/Lab
 Fall 2019
 
-# CURRENT SUBMISSION: TASK 2
+# CURRENT SUBMISSION: TASK 4
 
-* Task 1 -
-    
-    **Changes:** Task 1 implemented each of the comments 
-    
-      createNumberNode: now assigns the type of number node and the value.
-      
-      createFuntionNode: populates the function node 
-      and find the name with resolve function.
-      
-      eval: switch made based on language grammar.
-      
-      evalNumNdoe: populates number node.
-      
-      evalFuncNode: switch contains the correct operations neg through hyp 
-      and populates the result node.
-      
-      printRetVal: prints correct return value.
-      
-      added checkNumberType helper function.
-      
-      Issues: Only main issue I found is that when printing the value that
-      is supposed to be an integer, the value is followed by multiple zeros. This is
-      happening since I changed it to just a double value.
-      
-      Sample Runs: My task 1 runs are contained in the "Task1TestOuputs" file. The lexer takes in the
-      input then bison matches it to the correct expersion passesing the th $values. 
-      These values are lined up to the correct ast_node types to complete the operations.
-    
-* Task 2 -
-
-	**Changes** Task 2 implemented the let sections from the updated grammar
-
-	Created Symbol_AST_Node struct to hold symbol identifications.
-	
-	Created Symbol Table Node to implement as a linked list of potential symbols to matched
-	when compiling CILISP code.
-	
-	createSymbolNode: allows for creation of a symbol id to then be refernced from a parent
-	AST_NODE in the let section
-
-	createSymbolTableNode: Allows for a char* id to store a lec section expression's eventual 
-	value.
-
-	addSymbolToList: This will add a symbol AST node to the current linked list. I implemented
-	it to just make the newest node to become the head some then when searching for the
-	the correct symbol it can go the the newest scope.
-
-	parentToAstNode: allows for a symbol table list head to be referenced by an AST node parent
-	in the lec section.
-	
-	Expanded lexx and yacc files to parse for let sections as the lexer will look for symbols to
-	feed to yacc in order to construct the sections.
-
-	Issues: After inputing around more than 8-10 let sections, the next input appears to be stuck
-	inside an infinite loop. Also error message is tied to debug prints when missing symbols
-	and just shows number node = nan when there is no debug prints.
-
-	Sample Runs: Task 2 runs are contained in task2 run files in the task2 branch of the 
-	repository. One shows all let sections on site running and the other shows 
-	the missing symbol error debug print message.
-
-
+* Task 1
+* Task 2
 * Task 3
-* Task 4
+* Task 4 -
+    
+    **Changes** Implemented a basic print function according to the updated grammar.
+    
+    When lexx and yacc parse through this keyword it allows it to be used as a function
+    token. This token like the other function tokens allows us to create and eval the
+    desired token keyword entered by a user.
+    
+    Issues: The print function and RETVAL print function both print the same 
+    value in different "formats". Also if you are missing a symbol, the s-expression
+    will not print, but input should be ready for another input.
+    
+    Sample Runs: Located in Task4TestOuputs file.
+    
 * Task 5
 * Task 6
 * Task 7

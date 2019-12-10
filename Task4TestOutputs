@@ -1,0 +1,22 @@
+/home/wulff/Desktop/Comp232/CILISP/task4/CI_LISP/cmake-build-debug/cilisp
+
+> (print 3)
+
+3.000000
+Number Node value: 3.000000
+> (print (add 1 1))
+
+2.000000
+Number Node value: 2.000000
+
+> (print ((let (int a 1.25))(add a 1)))
+
+WARNING: precision loss in the assignment for variable a
+
+2.000000
+Number Node value: 2.000000
+> (print (add ((let (a ((let (b 2)) (mult b (sqrt 10))))) (div a 2)) ((let (c 5)) (sqrt c))))
+
+5.398346
+Number Node value: 5.398346
+>

@@ -103,6 +103,7 @@ AST_NODE *createNumberNode( char *typeName, double value)
                     printf("\nNumber Node creation went wrong\n");
                     break;
             }
+            free(typeName);
         }
 
     return node;
@@ -236,12 +237,9 @@ AST_NODE *createFunctionNode(char *funcName, AST_NODE *op1, AST_NODE *op2)
     return node;
 }
 
-// Called after execution is done on the base of the tree.
-// (see the program production in ciLisp.y)
-// Recursively frees the whole abstract syntax tree.
-// You'll need to update and expand freeNode as the project develops.
 void freeNode(AST_NODE *node)
 {
+
     if (!node)
         return;
 
@@ -250,12 +248,21 @@ void freeNode(AST_NODE *node)
         // Recursive calls to free child nodes
         freeNode(node->data.function.op1);
         freeNode(node->data.function.op2);
+        if(node->symbolTable != NULL)
+        {
+            free(node->symbolTable->ident);
+            freeNode((node->symbolTable->val));
+        }
 
         // Free up identifier string if necessary
         if (node->data.function.oper == CUSTOM_OPER)
         {
             free(node->data.function.ident);
         }
+    }
+    if(node->type == SYMBOL_NODE_TYPE)
+    {
+        free(node->data.symbol.ident);
     }
 
     free(node);
