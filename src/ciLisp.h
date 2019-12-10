@@ -166,5 +166,4 @@ RET_VAL checkReadNumber();
 NUM_TYPE evalType(char *type);
 int checkFunctionOpList(FUNC_AST_NODE *funcNode);
 
-
 #endif

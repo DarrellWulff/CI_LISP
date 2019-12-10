@@ -148,7 +148,8 @@ SYMBOL_TABLE_NODE *createSymbolTableNode(char *symbol, AST_NODE *exprNode, char 
     if(argNode != NULL)
     {
         node->type = LAMBDA_TYPE;
-        node->val_type = evalType(typeName);
+        if(typeName != NULL)
+            node->val_type = evalType(typeName);
         STACK_NODE *stackHead;
 
         nodeSize = sizeof(STACK_NODE);
@@ -259,13 +260,22 @@ AST_NODE *parentToAstNode(SYMBOL_TABLE_NODE *symbolNode, AST_NODE *parentASTNode
                 //Assign to stack to eval custom function's symbol stack's values later
                 STACK_NODE *curStackNode = parentASTNode->symbolTable->stack;
                 AST_NODE *curOP = funcDef->data.function.opList;
-                while(curStackNode != NULL)
+                if(curOP != NULL)
                 {
-                    curStackNode->val = curOP;
+                    while(curStackNode != NULL)
+                    {
+                        curStackNode->val = curOP;
 
-                    curStackNode = curStackNode->next;
-                    curOP = curOP->next;
-                }
+                        curStackNode = curStackNode->next;
+                        curOP = curOP->next;
+                        if(curStackNode == NULL && curOP->next != NULL)
+                            printf("\nERROR: Too many parameters were passed to function call");
+                    }
+                } else
+                    {
+                        printf("\nERROR: Not enough parameters passed to function call!");
+                    }
+
             }
         }
 
