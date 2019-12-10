@@ -68,7 +68,7 @@ Fall 2019
 	the missing symbol error debug print message.
 
 
-* Task 3
+* Task 3 -
     
     **Changes** Task 3 introduced typing to the grammar allowing for an optional
     type casting INT or DOUBLE onto s-expressions
@@ -81,7 +81,8 @@ Fall 2019
     a calculation. If there is a type desired at runtime the yacc file will
     pass it into the creation of the symbol or number.
     
-    Issues: 
+    Issues: Not sure if the final value node it prints the value out from is the correct node.
+    That seems to be the only issue here.
     
     Sample Runs: Are located in the Task3TestOutputs file.
     
