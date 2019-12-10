@@ -4,40 +4,38 @@ Darrell Wulff
 CI LISP Project/Lab
 Fall 2019
 
-# CURRENT SUBMISSION: TASK 1
+# CURRENT SUBMISSION: TASK 7
 
-* Task 1 -
-    
-    **Changes:** Task 1 implemented each of the comments 
-    
-      createNumberNode: now assigns the type of number node and the value.
-      
-      createFuntionNode: populates the function node 
-      and find the name with resolve function.
-      
-      eval: switch made based on language grammar.
-      
-      evalNumNdoe: populates number node.
-      
-      evalFuncNode: switch contains the correct operations neg through hyp 
-      and populates the result node.
-      
-      printRetVal: prints correct return value.
-      
-      added checkNumberType helper function.
-      
-      Issues: Only main issue I found is that when printing the value that
-      is supposed to be an integer, the value is followed by multiple zeros. This is
-      happening since I changed it to just a double value.
-      
-      Sample Runs: My task 1 runs are contained in the "Task1TestOuputs" file. The lexer takes in the
-      input then bison matches it to the correct expersion passesing the th $values. 
-      These values are lined up to the correct ast_node types to complete the operations.
-    
+* Task 1
 * Task 2
 * Task 3
 * Task 4
 * Task 5
 * Task 6
-* Task 7
+* Task 7 -
+
+    **Changes** Task 7 saw the introduction of user defined functions
+    to the grammar using the lambda expression. Here a function name
+    , formal parameters, and function body are defined in order for
+    custom functionality.
+    
+    I expanded the yacc file to use createSymbolTableNode() more, but with
+    different options of parameters that would go under a multitude of checking
+    to find the correct values.
+    
+    createArgNode() is added to create and link argument stacks together.
+    These argument stacks vals are then filled up by the correct operations
+    when the symbolTable node gets parented to it's astNode. 
+    
+    evalSymbolNode now searches for the function stack after finding the symbols
+    to be used with the stack. It calls eval() on each stack node and pops of the
+    old one once it returns to the eval() call in evalSymbolNode.
+    
+    Issues: Some times the error checking would lead to a segment fault as things would
+    be Null and were try to access them.
+    
+    Sample Runs Located in Task7TestOutputs
+     
 * Task 8
+
+    **Not Able To Complete**
