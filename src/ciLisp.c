@@ -262,14 +262,12 @@ AST_NODE *parentToAstNode(SYMBOL_TABLE_NODE *symbolNode, AST_NODE *parentASTNode
                 AST_NODE *curOP = funcDef->data.function.opList;
                 if(curOP != NULL)
                 {
-                    while(curStackNode != NULL)
+                    while(curStackNode != NULL && curOP != NULL)
                     {
                         curStackNode->val = curOP;
 
                         curStackNode = curStackNode->next;
                         curOP = curOP->next;
-                        if(curStackNode == NULL && curOP->next != NULL)
-                            printf("\nERROR: Too many parameters were passed to function call");
                     }
                 } else
                     {
@@ -368,20 +366,40 @@ AST_NODE *createConditionalNode(AST_NODE *condNode, AST_NODE *trueNode, AST_NODE
 // You'll need to update and expand freeNode as the project develops.
 void freeNode(AST_NODE *node)
 {
+
     if (!node)
         return;
 
     if (node->type == FUNC_NODE_TYPE)
     {
         // Recursive calls to free child nodes
-        freeNode(node->data.function.opList->next);
+        if(node->data.function.opList != NULL)
+        {
+            freeNode(node->data.function.opList);
+        }
 
+        if(node->symbolTable != NULL)
+        {
+            free(node->symbolTable->ident);
+            freeNode((node->symbolTable->val));
+        }
 
         // Free up identifier string if necessary
         if (node->data.function.oper == CUSTOM_OPER)
         {
             free(node->data.function.ident);
         }
+    }
+    if(node->type == COND_NODE_TYPE)
+    {
+        freeNode(node->data.condition.cond);
+        freeNode(node->data.condition.trueCond);
+        freeNode(node->data.condition.falseCond);
+    }
+
+    if(node->type == SYMBOL_NODE_TYPE)
+    {
+        free(node->data.symbol.ident);
     }
 
     free(node);

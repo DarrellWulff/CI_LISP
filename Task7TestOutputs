@@ -1,0 +1,25 @@
+/home/wulff/Desktop/Comp232/CILISP/task7/CI_LISP/cmake-build-debug/cilisp
+
+> ((let (double myFunc lambda (x y) (mult (add x 5) (sub y 2)))) (sub (myFunc 3 5) 2))
+
+Function Node value: 22.000000
+> ((let (f lambda (x y) (add x y)))(f (sub 5 2) (mult 2 3)))
+
+Number Node value: 9.000000
+> ((let (f lambda (x) (abs x)))(f (sub -90 2) (mult 3 0)))
+
+Number Node value: 92.000000
+> ((let (myFunc lambda (x y) (mult (add x 5.9) (sub y 2.5)))) (sub (myFunc 3.9 5) 2.656))
+
+Function Node value: 21.844000
+> ((let (int myFunc lambda (x y) (mult (add x 5.9) (sub y 2.5)))) (sub (myFunc 3.9 5) 2.656))
+
+Function Node value: 21.844000
+> ((let (f lambda (x y) (add x y)))(f (sub 5 2)))
+
+ERROR: too few parameters for the function f
+
+Not a valid operation!
+
+Number Node value: nan
+>
