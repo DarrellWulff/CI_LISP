@@ -128,7 +128,7 @@ AST_NODE *createSymbolNode(char *symbolName)
     return node;
 }
 
-SYMBOL_TABLE_NODE *createSymbolTableNode(char *symbol, AST_NODE *exprNode, char *typeName)
+SYMBOL_TABLE_NODE *createSymbolTableNode(char *symbol, AST_NODE *exprNode, char *typeName, SYMBOL_TABLE_NODE *argNode)
 {
     //populate the symbol table node
     SYMBOL_TABLE_NODE *node;
@@ -139,10 +139,30 @@ SYMBOL_TABLE_NODE *createSymbolTableNode(char *symbol, AST_NODE *exprNode, char 
     if ((node = calloc(nodeSize, 1)) == NULL)
         yyerror("Memory allocation failed!");
 
+
     node->ident = malloc(sizeof(char)*strlen(symbol));
     strcpy(node->ident, symbol);
 
     node->val = exprNode;
+
+    if(argNode != NULL)
+    {
+        node->type = LAMBDA_TYPE;
+        node->val_type = evalType(typeName);
+        STACK_NODE *stackHead;
+
+        nodeSize = sizeof(STACK_NODE);
+        if ((stackHead = calloc(nodeSize, 1)) == NULL)
+            yyerror("Memory allocation failed!");
+
+        //Link the arguments to the function for eval
+        stackHead = argNode->stack;
+        node->stack = stackHead;
+    }
+    else
+        {
+            node->type = VARIABLE_TYPE;
+        }
 
     if(node->val->type == NUM_NODE_TYPE)
     {
@@ -167,6 +187,37 @@ SYMBOL_TABLE_NODE *createSymbolTableNode(char *symbol, AST_NODE *exprNode, char 
 
     return node;
 }
+//Creates the function argument nodes
+SYMBOL_TABLE_NODE *createSymbolArgNode(char *symbol, SYMBOL_TABLE_NODE *argNode)
+{
+
+    SYMBOL_TABLE_NODE *node;
+    size_t nodeSize;
+
+    // allocate space for the fixed sie and the variable part (union)
+    nodeSize = sizeof(SYMBOL_TABLE_NODE);
+    if ((node = calloc(nodeSize, 1)) == NULL)
+        yyerror("Memory allocation failed!");
+
+    STACK_NODE *curStackNode;
+
+    nodeSize = sizeof(STACK_NODE);
+    if ((curStackNode = calloc(nodeSize, 1)) == NULL)
+        yyerror("Memory allocation failed!");
+
+    //Set up arguments to plug in values later
+    node->ident = malloc(sizeof(char)*strlen(symbol));
+    strcpy(node->ident, symbol);
+
+    node->val = NULL;
+    node->type = ARG_TYPE;
+    node->stack = curStackNode;
+    if(argNode != NULL)
+        node->stack->next = argNode->stack;
+
+    return node;
+}
+
 //Push old elements backward making the head the tail in LIFO order
 SYMBOL_TABLE_NODE *addSymbolToList(SYMBOL_TABLE_NODE *curHead, SYMBOL_TABLE_NODE *newElem)
 {
@@ -191,6 +242,31 @@ AST_NODE *parentToAstNode(SYMBOL_TABLE_NODE *symbolNode, AST_NODE *parentASTNode
     } else
         {
             parentASTNode->symbolTable = symbolNode;
+            AST_NODE *funcDef = parentASTNode;
+            //Find where the function is being used
+            //Not the best way to do this, but keeps it from skipping any values
+            if(funcDef->data.function.oper != CUSTOM_OPER && strcmp(funcDef->data.function.ident, symbolNode->ident) != 0)
+            {
+                funcDef = funcDef->data.function.opList;
+                while (funcDef->data.function.oper != CUSTOM_OPER && strcmp(funcDef->data.function.ident, symbolNode->ident) !=0)
+                {
+                    funcDef = funcDef->data.function.opList->next;
+                }
+            }
+
+            if(parentASTNode->symbolTable->stack != NULL)
+            {
+                //Assign to stack to eval custom function's symbol stack's values later
+                STACK_NODE *curStackNode = parentASTNode->symbolTable->stack;
+                AST_NODE *curOP = funcDef->data.function.opList;
+                while(curStackNode != NULL)
+                {
+                    curStackNode->val = curOP;
+
+                    curStackNode = curStackNode->next;
+                    curOP = curOP->next;
+                }
+            }
         }
 
     return parentASTNode;
@@ -237,7 +313,8 @@ AST_NODE *createFunctionNode(char *funcName, AST_NODE *opList)
     // TODO add the custom functions name to the node
     node->data.function.ident = malloc(sizeof(funcName)+1);
     strcpy(node->data.function.ident, funcName);
-    free(funcName);//Check if a custom function BEFORE FREEING!
+    if(node->data.function.oper != CUSTOM_OPER)
+        free(funcName);//Check if a custom function BEFORE FREEING!
 
     return node;
 }
@@ -247,7 +324,7 @@ AST_NODE *addFunctionNodeToList(AST_NODE *nextOp, AST_NODE *curOpList)
 
     if(nextOp == NULL)
     {
-        //
+        //No Parent
     } else
     {
         nextOp->next = curOpList;
@@ -372,6 +449,8 @@ RET_VAL evalFuncNode(FUNC_AST_NODE *funcNode)
     curOpNode = funcNode->opList;
     RET_VAL op1;
     RET_VAL op2;
+    //Used to find the user's custom function
+    AST_NODE *curSymbol = NULL;
 
     //Use for print op to make sure it prints correctly with a read func
     bool printFlag = false;
@@ -524,6 +603,21 @@ RET_VAL evalFuncNode(FUNC_AST_NODE *funcNode)
             else
                 result.value = 0;
             break;
+        case CUSTOM_OPER:
+            //Find the user's program
+            curSymbol = funcNode->opList->parent;
+            while (curSymbol->symbolTable == NULL)
+            {
+                curSymbol = curSymbol->parent;
+            }
+            //Parent the written function symbols to the function call so we can use the stack nodes
+            //funcNode->opList->parent->symbolTable->val->parent = funcNode->opList->parent;
+            //op1 = eval(funcNode->opList->parent->symbolTable->val);
+            curSymbol->symbolTable->val->parent = funcNode->opList->parent;
+            op1 = eval(curSymbol->symbolTable->val);
+            result.value = op1.value;
+            result.type = op1.type || curSymbol->symbolTable->val_type;
+            break;
         default:
             printf("\nNot a valid operation!\n");
             break;
@@ -550,21 +644,32 @@ RET_VAL evalSymbolNode( AST_NODE *symbolNode)
     }
 
     SYMBOL_TABLE_NODE *curNode;
-
     curNode = symbolTableNode->symbolTable;
 
-    //Find the Symbol
-    while(curNode != NULL)
+    //Check if user made function, in that case we use the stack variables instead
+    if(curNode->type == LAMBDA_TYPE)
     {
-
-        if(strcmp(curNode->ident, symbolNode->data.symbol.ident) == 0)
+        AST_NODE *curStackFrame = curNode->stack->val;
+        result = eval(curStackFrame);
+        //Once done eval user made function symbols the value gets popped off the stack
+        curNode->stack = curNode->stack->next;
+        return result;
+    } else
         {
-            result = eval(curNode->val);
-            return result;
+            //Find the Symbol if not user made function
+            while(curNode != NULL)
+            {
+                if(strcmp(curNode->ident, symbolNode->data.symbol.ident) == 0)
+                {
+                    result = eval(curNode->val);
+                    return result;
+                }
+
+                curNode = curNode->next;
+            }
         }
 
-        curNode = curNode->next;
-    }
+    printf("\nRuntime Error: Missing Symbol!");
     yyerror("Missing Symbol!");
     return result;
 }

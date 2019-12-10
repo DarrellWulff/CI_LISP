@@ -73,11 +73,20 @@ typedef struct {
     struct ast_node *falseCond; // to eval if cond is zero
 } COND_AST_NODE;
 
+typedef enum { VARIABLE_TYPE, LAMBDA_TYPE, ARG_TYPE } SYMBOL_TYPE;
+
+typedef struct stack_node {
+    struct ast_node *val;
+    struct stack_node *next;
+} STACK_NODE;
+
 //Variable Nodes "let_section"
 typedef struct symbol_table_node {
+    SYMBOL_TYPE type;
     NUM_TYPE val_type;
     char *ident;
     struct ast_node *val;
+    STACK_NODE *stack;
     struct symbol_table_node *next;
 } SYMBOL_TABLE_NODE;
 
@@ -129,7 +138,8 @@ AST_NODE *createNumberNode( char *typeName, double value);
 
 AST_NODE *createSymbolNode(char *symbolName);
 //AST_NODE contains a symbol table node
-SYMBOL_TABLE_NODE *createSymbolTableNode(char *symbol, AST_NODE *exprNode, char *typeName);
+SYMBOL_TABLE_NODE *createSymbolTableNode(char *symbol, AST_NODE *exprNode, char *typeName, SYMBOL_TABLE_NODE *argNode);
+SYMBOL_TABLE_NODE *createSymbolArgNode(char *symbol, SYMBOL_TABLE_NODE *argNode);
 //Can make added value the new head or make the tail.
 //if new head you can get the the last created variable
 SYMBOL_TABLE_NODE *addSymbolToList(SYMBOL_TABLE_NODE *curHead, SYMBOL_TABLE_NODE *newElem);

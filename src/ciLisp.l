@@ -41,11 +41,18 @@ func "neg"|"abs"|"exp"|"sqrt"|"add"|"sub"|"mult"|"div"|"remainder"|"log"|"pow"|"
     }
 
 "quit" {
+    fprintf(stderr, "lex: QUIT\n");
     return QUIT;
     }
 
 "cond" {
+    fprintf(stderr, "lex: COND\n");
     return COND;
+    }
+
+"lambda" {
+    fprintf(stderr, "lex: LAMBDA\n");
+    return LAMBDA;
     }
 
 {func} {
