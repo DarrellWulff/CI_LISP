@@ -1,0 +1,19 @@
+/home/wulff/Desktop/Comp232/CILISP/task3/CI_LISP/cmake-build-debug/cilisp
+
+> ((let (int a 1.25))(add a 1))
+
+WARNING: precision loss in the assignment for variable a
+
+Number Node value: 2.000000
+> ((let (double a 1.25))(add a 1))
+
+Function Node value: 2.250000
+> ((let (a 1.25))(add a 1))
+
+Function Node value: 2.250000
+> ((let (int a 1.25) (double b 4))(add a b))
+
+WARNING: precision loss in the assignment for variable a
+
+Function Node value: 5.000000
+>

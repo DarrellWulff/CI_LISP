@@ -4,7 +4,7 @@ Darrell Wulff
 CI LISP Project/Lab
 Fall 2019
 
-# CURRENT SUBMISSION: TASK 2
+# CURRENT SUBMISSION: TASK 3
 
 * Task 1 -
     
@@ -69,6 +69,22 @@ Fall 2019
 
 
 * Task 3
+    
+    **Changes** Task 3 introduced typing to the grammar allowing for an optional
+    type casting INT or DOUBLE onto s-expressions
+    
+    Started with the lexx and yacc files to enable optional type tokens to be 
+    read into createNumNode().
+    
+    I updated the symbol table node structure to accommodate for different types,
+    and implemented a series of checks in order to cast properly before and after
+    a calculation. If there is a type desired at runtime the yacc file will
+    pass it into the creation of the symbol or number.
+    
+    Issues: 
+    
+    Sample Runs: Are located in the Task3TestOutputs file.
+    
 * Task 4
 * Task 5
 * Task 6
