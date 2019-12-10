@@ -104,6 +104,7 @@ AST_NODE *createNumberNode( char *typeName, double value)
                     printf("\nNumber Node creation went wrong\n");
                     break;
             }
+            free(typeName);
         }
 
     return node;
@@ -161,7 +162,7 @@ SYMBOL_TABLE_NODE *createSymbolTableNode(char *symbol, AST_NODE *exprNode, char 
                     node->val->data.number.value = floor(node->val->data.number.value);
                     printf("\nWARNING: precision loss in the assignment for variable %s\n", symbol);
                 }
-
+                free(typeName);
             }
     }
 
@@ -281,20 +282,40 @@ AST_NODE *createConditionalNode(AST_NODE *condNode, AST_NODE *trueNode, AST_NODE
 // You'll need to update and expand freeNode as the project develops.
 void freeNode(AST_NODE *node)
 {
+
     if (!node)
         return;
 
     if (node->type == FUNC_NODE_TYPE)
     {
         // Recursive calls to free child nodes
-        freeNode(node->data.function.opList->next);
+        if(node->data.function.opList != NULL)
+        {
+            freeNode(node->data.function.opList);
+        }
 
+        if(node->symbolTable != NULL)
+        {
+            free(node->symbolTable->ident);
+            freeNode((node->symbolTable->val));
+        }
 
         // Free up identifier string if necessary
         if (node->data.function.oper == CUSTOM_OPER)
         {
             free(node->data.function.ident);
         }
+    }
+    if(node->type == COND_NODE_TYPE)
+    {
+        freeNode(node->data.condition.cond);
+        freeNode(node->data.condition.trueCond);
+        freeNode(node->data.condition.falseCond);
+    }
+
+    if(node->type == SYMBOL_NODE_TYPE)
+    {
+        free(node->data.symbol.ident);
     }
 
     free(node);

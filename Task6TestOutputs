@@ -1,0 +1,86 @@
+/home/wulff/Desktop/Comp232/CILISP/task6r/CI_LISP/cmake-build-debug/cilisp
+
+> ((let (myA (read))(myB (rand)))(cond (less myA myB) (print myA) (print myB)))
+read := 34
+
+=> 0.394383
+0.394383
+Function Node value: 0.394383
+> ((let (b 0.64)) (cond (less (rand) 0.5) (add b 2) (print b)))
+
+=> 0.640000
+0.640000
+Function Node value: 0.640000
+> ((let (a 0)) (cond (less (rand) a) (add a 1) (sub a 1)))
+
+Number Node value: -1.000000
+
+--lex/yacc Run Issue--
+> ((let (a 0)) (cond (less (rand) a) (add a 1) (sub a 1)))
+
+lex: LPAREN
+lex: LPAREN
+lex: LET
+lex: LPAREN
+lex: SYMBOL sval = a
+lex: INT dval = 0.000000
+yacc: number ::= INT
+yacc: s_expr ::= number
+lex: RPAREN
+yacc:  LPAREN SYMBOL s_expr RPAREN
+yacc: LET_ELEM
+lex: RPAREN
+yacc: LET_SECTION
+lex: LPAREN
+lex: LPAREN
+lex: FUNC sval = less
+lex: LPAREN
+lex: FUNC sval = rand
+lex: RPAREN
+
+ERROR: syntax error
+yacc: s_expr ::= error
+
+ERROR: unexpected token
+yacc: program ::= s_expr
+yacc: s_expr ::= LPAREN FUNC s_expr_list RPAREN
+yacc: s_expr ::= f_expr
+lex: SYMBOL sval = a
+yacc: symbol ::= SYMBOL
+lex: RPAREN
+yacc: program ::= s_expr
+yacc: program ::= s_expr s_expr_list
+yacc: s_expr ::= LPAREN FUNC s_expr_list RPAREN
+yacc: s_expr ::= f_expr
+lex: LPAREN
+lex: FUNC sval = add
+lex: SYMBOL sval = a
+yacc: symbol ::= SYMBOL
+lex: INT dval = 1.000000
+yacc: number ::= INT
+yacc: s_expr ::= number
+lex: RPAREN
+yacc: program ::= s_expr
+yacc: program ::= s_expr s_expr_list
+yacc: s_expr ::= LPAREN FUNC s_expr_list RPAREN
+yacc: s_expr ::= f_expr
+lex: LPAREN
+lex: FUNC sval = sub
+lex: SYMBOL sval = a
+yacc: symbol ::= SYMBOL
+lex: INT dval = 1.000000
+yacc: number ::= INT
+yacc: s_expr ::= number
+lex: RPAREN
+yacc: program ::= s_expr
+yacc: program ::= s_expr s_expr_list
+yacc: s_expr ::= LPAREN FUNC s_expr_list RPAREN
+yacc: s_expr ::= f_expr
+lex: RPAREN
+yacc: s_expr ::= LPAREN COND s_expr s_expr s_expr RPAREN
+lex: RPAREN
+yacc: s_expr ::= LPAREN let_section s_expr RPAREN
+lex: EOL
+yacc: program ::= s_expr EOL
+Number Node value: -1.000000
+>
